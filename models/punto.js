@@ -2,16 +2,18 @@ const { Schema, model } = require('mongoose')
 
 const PuntoSchema = Schema({
 
-    idcliente: {
-        type: String,
-        require: [true, 'El id es Obligatorio'],
-        unique: true
-    },        
-    nombre: {
-        type: String,        
-        require: true
+    proyecto:{
+        type: Schema.Types.ObjectId,
+        ref:'Proyecto',
+        require: true,
     },
-    //TODO TERMINAR DISPOSITIVO/
+
+    cliente: {
+        type: Schema.Types.ObjectId,
+        ref:'Cliente',
+        require: true,
+    },        
+
     dispositivo: {
         type: Schema.Types.ObjectId,    //Lo usamos para relacionar el operador al proyecto
         ref: 'Dispositivo',             //El operador del proyecto
@@ -23,7 +25,23 @@ const PuntoSchema = Schema({
         ref: 'Medidor',             //El operador del proyecto
         require: true
 
-    }
+    },   
+
+    matricula:{
+        type: String,        
+        require: true      
+    },
+
+    direccion:{
+        type: String,        
+        require: true      
+    },
+
+    georeferencia:{
+        type: String,        
+        require: true      
+    }    
+
 
 });
 

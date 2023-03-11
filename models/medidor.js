@@ -1,28 +1,30 @@
 const { Schema, model } = require('mongoose')
 
-const PuntoSchema = Schema({
+const MedidorSchema = Schema({
 
-    idcliente: {
+    proyecto:{
+        type: Schema.Types.ObjectId,
+        ref:'Proyecto',
+        require: true,
+    },
+    
+    idmedidor: {
         type: String,
         require: [true, 'El id es Obligatorio'],
         unique: true
     },        
-    nombre: {
-        type: String,        
-        require: true
-    },
-    dispositivo: {
+    tipomedidor: {
         type: Schema.Types.ObjectId,    //Lo usamos para relacionar el operador al proyecto
-        ref: 'Dispositivo',                //El operador del proyecto
+        ref: 'TipoMedidor',             //El operador del proyecto
         require: true
     },
 
 });
 
-PuntoSchema.methods.toJSON = function () {
-    const {__v,_id, ...data } = this.toObject();
+MedidorSchema.methods.toJSON = function () {
+    const {__v,_id, ...data } = this.toObject(); 
     data.id=_id;
     return data;
 }
 
-module.exports = model('Punto',PuntoSchema);
+module.exports = model('Medidor',MedidorSchema);

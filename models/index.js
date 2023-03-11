@@ -2,17 +2,25 @@
 const Role = require('./role');
 const Server = require('./server');
 const Usuario = require('./usuario');
-const Salas = require('./salas');
-const Laboratorios = require('./laboratorios');
-const Guia = require('./guia');
-const Inventario = require('./inventario');
+const Operador = require('./operador');
+const Ciudad = require('./ciudad');
+const Proyecto= require('./proyecto');
+const Punto = require('./punto');
+const Cliente = require('./cliente');
+const Dispositivo = require('./dispositivo');
+const Medidor = require('./medidor');
+const TipoMedidor = require('./tipomedidor');
 
 module.exports={
-    Salas,
-    Laboratorios,
     Role,
     Server,
     Usuario,
-    Guia,
-    Inventario      
+    Operador,
+    Ciudad,
+    Proyecto,
+    Punto,
+    Cliente,
+    Dispositivo,
+    Medidor,
+    TipoMedidor 
 }

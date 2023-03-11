@@ -12,13 +12,15 @@ class Server {
         this.paths = {
             auth:           '/api/auth',
             usuarios:       '/api/usuarios',
-            salas:          '/api/salas',
-            laboratorios:   '/api/laboratorios',
             buscar:         '/api/buscar',
-            inventario:     '/api/inventario',
-            guias:          '/api/guias',
-            uploads:        '/api/uploads'
+            operador:       '/api/operador',
 
+/*             medidor:        '/api/medidor',
+            dispositivo:    '/api/dispositivo',
+            cliente:        '/api/cliente',
+            proyecto:       '/api/proyecto',            
+            inventario:     '/api/inventario',           
+ */
         }
         //Conectar la base de datos
         this.conectarDB();
@@ -51,14 +53,18 @@ class Server {
     }
     /////////////////////////////////////////////////
     routes() {
-        this.app.use(this.paths.laboratorios, require('../routers/laboratorios'));
-        this.app.use(this.paths.inventario, require('../routers/inventario'));        
-        this.app.use(this.paths.usuarios, require('../routers/usuarios'));
-        this.app.use(this.paths.uploads, require('../routers/uploads'));
-        this.app.use(this.paths.buscar, require('../routers/buscar'));
-        this.app.use(this.paths.guias, require('../routers/guias')); 
-        this.app.use(this.paths.salas, require('../routers/salas'));
         this.app.use(this.paths.auth, require('../routers/auth'));
+        this.app.use(this.paths.usuarios, require('../routers/usuarios'));
+        this.app.use(this.paths.buscar, require('../routers/buscar'));
+        this.app.use(this.paths.operador, require('../routers/operador')); 
+        
+/*         this.app.use(this.paths.medidor, require('../routers/medidor'));
+        this.app.use(this.paths.dispositivo, require('../routers/dispositivo'));        
+        this.app.use(this.paths.cliente, require('../routers/cliente'));
+        this.app.use(this.paths.proyecto, require('../routers/proyecto'));
+        this.app.use(this.paths.inventario, require('../routers/inventario'));        
+ */
+
 
     }
     //////////////////////////////////////////////////

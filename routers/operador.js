@@ -1,52 +1,51 @@
 const Router = require('express');
 const { check } = require('express-validator');
-const { crearGuia,
-        obtenerGuias,
-        obtenerGuia,
-        actualizarGuia,
-        borrarGuia} = require('../controllers/Guias');
-const { existeGuiaPorId} = require('../helpers/db-validators');
+const { crearOperador,
+        obtenerOperador,
+        actualizarOperador,
+        borrarOperador} = require('../controllers/operador');
+const { existeOperadorPorId} = require('../helpers/db-validators');
 const { validarJWT, validarCampos} = require('../middlewares');
 
 const router = Router();
 
-//Obtener todas las Guia publico
+//Obtener todas las Operador publico
 router.get('/', [
     validarJWT, 
     validarCampos
-], obtenerGuias);
+], obtenerOperador);
 
-//Obtener una Guia por id-publico
+//Obtener una Operador por id-publico
 router.get('/:id', [
     //validarJWT, 
     check('id','No es un id de Mongo válido').isMongoId(),
-    check('id').custom(existeGuiaPorId),
+    check('id').custom(existeOperadorPorId),
     validarCampos
-], obtenerGuia);
+], obtenerOperador);
 
-//Crear un Guia privado - cualqiuer persona con un token valido
+//Crear un Operador privado - cualqiuer persona con un token valido
 router.post('/', [
     //esAdminRole,
     validarJWT,
     check('nombre', 'El nombre es Obligatorio').not().isEmpty(),
     validarCampos
-], crearGuia);
+], crearOperador);
 
 //Actualizar privado token valido
 router.put('/:id', [
     validarJWT,
 //    esAdminRole,
     check('nombre', 'El nombre es obligatorio').not().isEmpty(),
-    check('id').custom(existeGuiaPorId),
+    check('id').custom(existeOperadorPorId),
     validarCampos
-], actualizarGuia);
+], actualizarOperador);
  
-//Borrar Guia solo Admin
+//Borrar Operador solo Admin
 router.delete('/:id', [
     validarJWT,
 //    esAdminRole,
     check('id', 'No es un id de Mongo válido').isMongoId(),
     validarCampos
-], borrarGuia);
+], borrarOperador);
 
 module.exports = router;

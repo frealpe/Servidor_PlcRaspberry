@@ -1,52 +1,52 @@
 const Router = require('express');
 const { check } = require('express-validator');
-const { crearLaboratorios,
-        obtenerLaboratorios,
-        obtenerLaboratorio,
-        actualizarLaboratorios,
-        borrarLaboratorios} = require('../controllers/laboratorios');
-const { existeLaboratoriosPorId} = require('../helpers/db-validators');
+const { crearMedidor,
+        obtenerMedidor,
+        obtenerMedidor,
+        actualizarMedidor,
+        borrarMedidor} = require('../controllers/medidor');
+const { existeMedidorPorId} = require('../helpers/db-validators');
 const { validarJWT, validarCampos} = require('../middlewares');
 
 const router = Router();
 
-//Obtener todas las Laboratorios publico
-router.get('/', [
+//Obtener todas las Medidor publico
+router.get('/:proyecto', [
     validarJWT, 
     validarCampos
-], obtenerLaboratorios);
+], obtenerMedidor); 
 
-//Obtener una Laboratorios por id-publico
+//Obtener una Medidor por id-publico
 router.get('/:id', [
+    //validarJWT, 
     check('id','No es un id de Mongo válido').isMongoId(),
-    check('id').custom(existeLaboratoriosPorId),
+    check('id').custom(existeMedidorPorId),
     validarCampos
-], obtenerLaboratorio);
+], obtenerMedidor);
 
-//Crear un Laboratorios privado - cualqiuer persona con un token valido
+//Crear un Medidor privado - cualqiuer persona con un token valido
 router.post('/', [
-//    esAdminRole,
+    //esAdminRole,
     validarJWT,
-    //check('id').custom(noexisteSalasPorId),
     check('nombre', 'El nombre es Obligatorio').not().isEmpty(),
     validarCampos
-], crearLaboratorios);
+], crearMedidor);
 
 //Actualizar privado token valido
 router.put('/:id', [
     validarJWT,
 //    esAdminRole,
     check('nombre', 'El nombre es obligatorio').not().isEmpty(),
-    check('id').custom(existeLaboratoriosPorId),
+    check('id').custom(existeMedidorPorId),
     validarCampos
-], actualizarLaboratorios);
+], actualizarMedidor);
  
-//Borrar Laboratorios solo Admin
+//Borrar Medidor solo Admin
 router.delete('/:id', [
     validarJWT,
 //    esAdminRole,
     check('id', 'No es un id de Mongo válido').isMongoId(),
     validarCampos
-], borrarLaboratorios);
+], borrarMedidor);
 
 module.exports = router;

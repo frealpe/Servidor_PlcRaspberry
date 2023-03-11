@@ -17,6 +17,7 @@ const ProyectoSchema = Schema({
         ref: 'Operador',                //El operador del proyecto
         require: true
     },
+    
 
 });
 
@@ -26,4 +27,4 @@ ProyectoSchema.methods.toJSON = function () {
     return data;
 }
 
-module.exports = model('Proyecto',ProyectorSchema);
+module.exports = model('Proyecto',ProyectoSchema);

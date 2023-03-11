@@ -9,7 +9,7 @@ const OperadorSchema = Schema({
     },    
     nit: {
         type: String,
-        require: true,
+        require: [true, 'El nit es obligatorio'],
         unique: true
     },
 
