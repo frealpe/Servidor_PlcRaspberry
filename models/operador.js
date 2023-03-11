@@ -4,12 +4,12 @@ const OperadorSchema = Schema({
 
     nombre: {
         type: String,
-        require: [true, 'El nombre es obligatorio'],
+        require: [true,'El nombre es obligatorio'],
         unique: true
     },    
     nit: {
         type: String,
-        require: [true, 'El nit es obligatorio'],
+        require: [true,'El nit es obligatorio'],
         unique: true
     },
 

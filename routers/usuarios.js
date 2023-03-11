@@ -15,10 +15,7 @@ const { ususariosGet,
     usuariosPost,
     usuariosDelete } = require('../controllers/usuarios');
 
-
 const router = Router();
-
-
 
 router.get('/', ususariosGet);
 //////////////////////////////////////////////////
@@ -34,10 +31,10 @@ router.put('/:id', [
 router.post('/',
     [//Se envia en [] la validación del correo
         check('nombre', 'El nombre es obligatorio').not().isEmpty(),
-        check('correo').custom(emailExiste),
+        check('correo').custom(emailExiste),        
         check('correo', 'El correo no es valido').isEmail(),
         check('password', 'El password debe ser de más 6 letras').isLength({ min: 6 }),
-        //check('rol','No es un rol válido').isIn(['ADMIN_ROLE','USER_ROLE']),  
+        check('rol','No es un rol válido').isIn(['ADMIN_ROLE','USER_ROLE']),  
         check('rol').custom(esRoleVaido),
         validarCampos                           //Revisa los checks
     ],                                      //Si pasa pude seguir al Post

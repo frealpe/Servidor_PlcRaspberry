@@ -19,17 +19,21 @@ const obtenerOperadores = async (req, res = response) => {
 
 //Obtener Operadores - por id populate ()
 const obtenerOperador = async (req, res = response) => {
+    
     const {id} = req.params;
+    console.log("Entre");
+    console.log(id);
     const Operadores = await Operador.findById(id);
     res.json({
         Operadores
     }); 
 }
 
-//Crear una Operadores 
+//Crear una Operador 
 const crearOperador = async (req, res = response) => {
     
-    const nitOperador = req.body.nitOperador;
+    const nitOperador = req.body.nit;
+
     const OperadoresDB = await Operador.findOne({nitOperador});
     if (OperadoresDB) {
         return res.status(400).json({
@@ -37,7 +41,7 @@ const crearOperador = async (req, res = response) => {
         });
     }  
     const data = {
-        proyecto,
+        nombre: req.body.nombre,
         nitOperador,
     }
     const Operadores = new Operador(data);
@@ -52,12 +56,8 @@ const actualizarOperador = async (req, res = response) => {
     const {...data } = req.body;
 
     if (data.nombre) {
-        data.nombre = data.nombre.toUpperCase();
-        data.ref= data.ref;
-        data.laboratorio = data.laboratorio;
-
+        data.nombre = data.nombre;
     }
-
     const Operadores = await Operador.findByIdAndUpdate(id, data,{ new: true });
     res.json(Operadores);
 }
@@ -66,7 +66,6 @@ const actualizarOperador = async (req, res = response) => {
 const borrarOperador = async (req, res = response) => {
     console.log('borrar');
     const { id } = req.params;
-    //const OperadoresBorrada = await Operadores.findByIdAndUpdate(id, {estado:false },{ new: true });
     const OperadoresBorrada = await Operador.findOneAndRemove(id);
     res.json(OperadoresBorrada);
 

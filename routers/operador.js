@@ -1,9 +1,11 @@
 const Router = require('express');
 const { check } = require('express-validator');
+const { } = require('../controllers/operador');
 const { crearOperador,
         obtenerOperador,
         actualizarOperador,
-        borrarOperador} = require('../controllers/operador');
+        borrarOperador,
+        obtenerOperadores} = require('../controllers/operador');
 const { existeOperadorPorId} = require('../helpers/db-validators');
 const { validarJWT, validarCampos} = require('../middlewares');
 
@@ -13,7 +15,7 @@ const router = Router();
 router.get('/', [
     validarJWT, 
     validarCampos
-], obtenerOperador);
+], obtenerOperadores);
 
 //Obtener una Operador por id-publico
 router.get('/:id', [
