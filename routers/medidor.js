@@ -3,21 +3,22 @@ const { check } = require('express-validator');
 const { crearMedidor,
         obtenerMedidor,
         actualizarMedidor,
-        borrarMedidor} = require('../controllers/medidor');
+        borrarMedidor,
+        obtenerMedidores} = require('../controllers/medidor');
 const { existeMedidorPorId} = require('../helpers/db-validators');
 const { validarJWT, validarCampos} = require('../middlewares');
 
 const router = Router();
 
 //Obtener todas las Medidor publico
-router.get('/:proyecto', [
+router.get('/', [
     validarJWT, 
     validarCampos
-], obtenerMedidor);
+], obtenerMedidores);
 
 //Obtener una Medidor por id-publico
 router.get('/:id', [
-    //validarJWT, 
+    validarJWT, 
     check('id','No es un id de Mongo válido').isMongoId(),
     check('id').custom(existeMedidorPorId),
     validarCampos
@@ -27,7 +28,7 @@ router.get('/:id', [
 router.post('/', [
     //esAdminRole,
     validarJWT,
-    check('nombre', 'El nombre es Obligatorio').not().isEmpty(),
+    check('idmedidor','El identificador es Obligatorio').not().isEmpty(),
     validarCampos
 ], crearMedidor);
 
@@ -35,7 +36,7 @@ router.post('/', [
 router.put('/:id', [
     validarJWT,
 //    esAdminRole,
-    check('nombre', 'El nombre es obligatorio').not().isEmpty(),
+    check('idmedidor','El identificador es Obligatorio').not().isEmpty(),
     check('id').custom(existeMedidorPorId),
     validarCampos
 ], actualizarMedidor);

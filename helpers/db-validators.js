@@ -1,4 +1,4 @@
-const {Operador, Proyecto, TipoMedidor} = require('../models');
+const {Operador, Proyecto, TipoMedidor, Medidor} = require('../models');
 const Role = require('../models/role');
 const Usuario = require('../models/usuario');
 
@@ -60,6 +60,15 @@ const existeTMedidorPorId = async (id) => {
     }
 }
 /////////////////////////////////////////////////////////////////
+const existeMedidorPorId = async (id) => {
+    //Verifcar si existe el correo
+    const existeUsuario = await Medidor.findById(id);
+    if (!existeUsuario) {
+        throw new Error(`El id no existe: ${id}`);
+
+    }
+}
+/////////////////////////////////////////////////////////////////
 
 module.exports = {
     esRoleVaido,
@@ -67,5 +76,6 @@ module.exports = {
     existeUsuarioPorId,
     existeOperadorPorId,
     existeProyectoPorId,
-    existeTMedidorPorId
+    existeTMedidorPorId,
+    existeMedidorPorId
 }

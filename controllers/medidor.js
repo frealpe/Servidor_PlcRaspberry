@@ -2,10 +2,9 @@ const { response } = require("express");
 const {Medidor} = require('../models');
 
 //Obtener Medidores-Proyecto
-const obtenerMedidores = async (req, res = response) => {
-    const {proyecto} = req.params;
+const obtenerMedidores = async (req, res = response) => {   
     
-    const query = { proyecto: proyecto };
+    const query = { estado: true };    
     const [totales, Medidores] = await Promise.all([
         Medidor.countDocuments(query),
         Medidor.find(query)
@@ -19,6 +18,8 @@ const obtenerMedidores = async (req, res = response) => {
 
 //Obtener Medidores - por id populate ()
 const obtenerMedidor = async (req, res = response) => {
+    console.log("medidor");
+
     const {id} = req.params;
     const Medidores = await Medidor.findById(id);
     res.json({
@@ -27,9 +28,8 @@ const obtenerMedidor = async (req, res = response) => {
 }
 
 //Crear una Medidores 
-const crearMedidor = async (req, res = response) => {
-    
-    const idmedidor = req.body.idmedidor.toUpperCase();   
+const crearMedidor = async (req, res = response) => {    
+    const idmedidor = req.body.idmedidor;    
     const MedidoresDB = await Medidor.findOne({idmedidor});
     if (MedidoresDB) {
         return res.status(400).json({
@@ -37,10 +37,9 @@ const crearMedidor = async (req, res = response) => {
         });
     }  
     const data = {
-        proyecto,
+        proyecto:req.body.proyecto,
         idmedidor,
-        ref:req.body.ref,
-        arch:req.body.arch,
+        tipomedidor:req.body.tipomedidor
     }
     const Medidores = new Medidor(data);
     await Medidores.save();
@@ -53,10 +52,10 @@ const actualizarMedidor = async (req, res = response) => {
     const { id } = req.params;
     const {...data } = req.body;
 
-    if (data.nombre) {
-        data.nombre = data.nombre.toUpperCase();
-        data.ref= data.ref;
-        data.laboratorio = data.laboratorio;
+    if (data.idmedidor) {
+        data.idmedidor= data.idmedidor.toUpperCase();
+        data.tipomedidor= data.tipomedidor;
+        data.proyecto = data.proyecto;
 
     }
 
