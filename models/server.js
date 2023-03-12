@@ -14,11 +14,11 @@ class Server {
             usuarios:       '/api/usuarios',
             buscar:         '/api/buscar',
             operador:       '/api/operador',
+            proyecto:       '/api/proyecto',            
 
 /*             medidor:        '/api/medidor',
             dispositivo:    '/api/dispositivo',
             cliente:        '/api/cliente',
-            proyecto:       '/api/proyecto',            
             inventario:     '/api/inventario',           
  */
         }
@@ -57,11 +57,11 @@ class Server {
         this.app.use(this.paths.usuarios, require('../routers/usuarios'));
         this.app.use(this.paths.buscar, require('../routers/buscar'));
         this.app.use(this.paths.operador, require('../routers/operador')); 
+        this.app.use(this.paths.proyecto, require('../routers/proyecto'));
         
 /*         this.app.use(this.paths.medidor, require('../routers/medidor'));
         this.app.use(this.paths.dispositivo, require('../routers/dispositivo'));        
         this.app.use(this.paths.cliente, require('../routers/cliente'));
-        this.app.use(this.paths.proyecto, require('../routers/proyecto'));
         this.app.use(this.paths.inventario, require('../routers/inventario'));        
  */
 
