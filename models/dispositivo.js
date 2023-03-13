@@ -7,38 +7,39 @@ const DispositivoSchema = Schema({
         ref:'Proyecto',
         require: true,
     },
-    
-    nivelbateria: {
-        type: String,
+
+    cliente: {
+        type: Schema.Types.ObjectId,
+        ref:'Cliente',
+        require: true,
     },        
-    
-    rssi: {
-        type: String,
-    },  
-    
-    varc1: {
-        type: String,
-    },  
 
-    varc2: {
-        type: String,
-    },  
+    medidor:{
+        type: Schema.Types.ObjectId,    //Lo usamos para relacionar el operador al proyecto
+        ref: 'Medidor',             //El operador del proyecto
+        require: true
 
-    varc3: {
-        type: String,
-    },  
+    },   
 
-    varc4: {
-        type: String,
-    },  
+    iddispositivo: {
+        type: String,    //Lo usamos para relacionar el operador al proyecto
+        require: true
+    },
 
-    alarmas: {
-        type: String,
-    },  
+    matricula:{
+        type: String,        
+        require: true      
+    },
 
-    downlink: {
-        type: String,
-    },  
+    direccion:{
+        type: String,        
+        require: true      
+    },
+
+    georeferencia:{
+        type: String,        
+        require: true      
+    }    
 
 
 });

@@ -17,9 +17,9 @@ class Server {
             proyecto:       '/api/proyecto',            
             tipomedidor:    '/api/tipomedidor',            
             medidor:        '/api/medidor',
-/*             
-            dispositivo:    '/api/dispositivo',
             cliente:        '/api/cliente',
+            /*             
+            dispositivo:    '/api/dispositivo',
             inventario:     '/api/inventario',           
  */
         }
@@ -61,10 +61,10 @@ class Server {
         this.app.use(this.paths.proyecto, require('../routers/proyecto'));
         this.app.use(this.paths.tipomedidor, require('../routers/tipomedidor'));
         this.app.use(this.paths.medidor, require('../routers/medidor'));
-
+        this.app.use(this.paths.cliente, require('../routers/cliente'));
+        
         /*         
         this.app.use(this.paths.dispositivo, require('../routers/dispositivo'));        
-        this.app.use(this.paths.cliente, require('../routers/cliente'));
         this.app.use(this.paths.inventario, require('../routers/inventario'));           
  */
 

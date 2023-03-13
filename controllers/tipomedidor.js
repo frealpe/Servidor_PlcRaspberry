@@ -30,7 +30,6 @@ const obtenerTMedidor = async (req, res = response) => {
 const crearTMedidor = async (req, res = response) => {
     
     const denominacion = req.body.denominacion;   
-    console.log(denominacion);
     const TMedidoresDB = await TipoMedidor.findOne({denominacion});
     if (TMedidoresDB) {
         return res.status(400).json({

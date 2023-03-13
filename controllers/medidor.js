@@ -29,6 +29,7 @@ const obtenerMedidor = async (req, res = response) => {
 
 //Crear una Medidores 
 const crearMedidor = async (req, res = response) => {    
+    
     const idmedidor = req.body.idmedidor;    
     const MedidoresDB = await Medidor.findOne({idmedidor});
     if (MedidoresDB) {
