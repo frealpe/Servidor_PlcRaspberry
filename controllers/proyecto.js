@@ -68,7 +68,7 @@ const actualizarProyecto = async (req, res = response) => {
 const borrarProyecto = async (req, res = response) => {
     console.log('borrar');
     const { id } = req.params;
-    const ProyectoesBorrada = await Proyecto.findOneAndRemove(id);
+    const ProyectoesBorrada = await Proyecto.findByIdAndRemove(id);
     res.json(ProyectoesBorrada);
 
 }

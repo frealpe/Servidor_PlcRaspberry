@@ -69,7 +69,7 @@ const borrarMedidor = async (req, res = response) => {
     console.log('borrar');
     const { id } = req.params;
     //const MedidoresBorrada = await Medidores.findByIdAndUpdate(id, {estado:false },{ new: true });
-    const MedidoresBorrada = await Medidor.findOneAndRemove(id);
+    const MedidoresBorrada = await Medidor.findByIdAndRemove(id);
     res.json(MedidoresBorrada);
 
 }

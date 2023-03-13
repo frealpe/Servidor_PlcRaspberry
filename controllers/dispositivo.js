@@ -90,7 +90,7 @@ const borrarDispositivo = async (req, res = response) => {
     console.log('borrar');
     const { id } = req.params;
     //const DispositivoesBorrada = await Dispositivoes.findByIdAndUpdate(id, {estado:false },{ new: true });
-    const DispositivoesBorrada = await Dispositivo.findOneAndRemove(id);
+    const DispositivoesBorrada = await Dispositivo.findByIdAndRemove(id);
     res.json(DispositivoesBorrada);
 
 }

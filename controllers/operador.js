@@ -66,7 +66,7 @@ const actualizarOperador = async (req, res = response) => {
 const borrarOperador = async (req, res = response) => {
     console.log('borrar');
     const { id } = req.params;
-    const OperadoresBorrada = await Operador.findOneAndRemove(id);
+    const OperadoresBorrada = await Operador.findByIdAndRemove(id);
     res.json(OperadoresBorrada);
 
 }

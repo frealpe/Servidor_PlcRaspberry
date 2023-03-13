@@ -68,7 +68,7 @@ const usuariosPost = async (req, res = response) => {
 const usuariosDelete = async (req, res=response) => {
     const {id}= req.params;
     //Se obtiene el usuario autenticado y el borrado
-    const usuario = await Usuario.findByIdAndUpdate(id,{estado:false});
+    const usuario = await Usuario.findByIdAndRemove(id,{estado:false});
     const usuarioAutenticado = req.usuario;
 
     res.json({

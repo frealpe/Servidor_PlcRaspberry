@@ -67,7 +67,7 @@ const borrarCliente = async (req, res = response) => {
     console.log('borrar');
     const { id } = req.params;
     //const ClienteBorrada = await Cliente.findByIdAndUpdate(id, {estado:false },{ new: true });
-    const ClienteBorrada = await Cliente.findOneAndRemove(id);
+    const ClienteBorrada = await Cliente.findByIdAndRemove(id);
     res.json(ClienteBorrada);
 
 }

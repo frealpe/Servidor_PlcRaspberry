@@ -62,7 +62,7 @@ const actualizarTMedidor = async (req, res = response) => {
 //Borrar TMedidores -estado: false
 const borrarTMedidor = async (req, res = response) => {
     const { id } = req.params;
-    const TMedidoresBorrada = await TipoMedidor.findOneAndRemove(id);
+    const TMedidoresBorrada = await TipoMedidor.findByIdAndRemove(id);
     res.json(TMedidoresBorrada);
 }
 
