@@ -23,7 +23,8 @@ const DispositivoSchema = Schema({
 
     iddispositivo: {
         type: String,    //Lo usamos para relacionar el operador al proyecto
-        require: true
+        require: true,
+        unique: true   
     },
 
     matricula:{

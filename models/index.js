@@ -5,9 +5,8 @@ const Usuario = require('./usuario');
 const Operador = require('./operador');
 const Ciudad = require('./ciudad');
 const Proyecto= require('./proyecto');
-const Punto = require('./dispositivo');
 const Cliente = require('./cliente');
-const Dispositivo = require('./medicion');
+const Dispositivo = require('./dispositivo');
 const Medidor = require('./medidor');
 const TipoMedidor = require('./tipomedidor');
 
@@ -18,7 +17,6 @@ module.exports={
     Operador,
     Ciudad,
     Proyecto,
-    Punto,
     Cliente,
     Dispositivo,  
     Medidor,

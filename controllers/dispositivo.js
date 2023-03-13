@@ -26,46 +26,30 @@ const obtenerDispositivo = async (req, res = response) => {
     }); 
 }
 
-/*
-   Dispostivo
-   id
-   medidor
-*/
-
-/*
-  Medidor
-  TipoMedidor
-  ..
-*/
-
-/*
-  MedicionDispositivo
-  iddispositivo
-  fechahora
-  nivel
-  rssi
-  varc1
-  varc2
-  varc3
- */
-
 //Crear una Dispositivoes 
-const crearDispositivo = async (req, res = response) => {    
-    const idProyecto = req.body.proyecto;    
-    const DispositivoesDB = await Dispositivo.findOne({idProyecto});
+const crearDispositivo = async (req, res = response) => {   
+    
+    const iddispositivo = req.body.iddispositivo;    
+
+    const DispositivoesDB = await Dispositivo.findOne({iddispositivo});
+    console.log(DispositivoesDB);
     if (DispositivoesDB) {
         return res.status(400).json({
-            msg: `El Dispositivo ${DispositivoesDB.idDispositivo},ya existe`
+            msg: `El Dispositivo ${iddispositivo},ya existe`
         });
     }  
     const data = {
         proyecto:req.body.proyecto,
-        idDispositivo,
-        tipoDispositivo:req.body.tipoDispositivo
+        cliente:req.body.cliente,
+        medidor:req.body.medidor,        
+        iddispositivo: req.body.iddispositivo,
+        matricula:req.body.matricula,        
+        direccion:req.body.direccion,
+        georeferencia:req.body.georeferencia,         
     }
-    const Dispositivoes = new Dispositivo(data);
-    await Dispositivoes.save();
-    res.status(201).json(Dispositivoes);
+    const Dispositivod = new Dispositivo(data);
+    await Dispositivod.save();
+    res.status(201).json(Dispositivod);
 }
 
 //Actulizar Dispositivoes 
@@ -74,10 +58,14 @@ const actualizarDispositivo = async (req, res = response) => {
     const { id } = req.params;
     const {...data } = req.body;
 
-    if (data.idDispositivo) {
-        data.idDispositivo= data.idDispositivo.toUpperCase();
-        data.tipoDispositivo= data.tipoDispositivo;
-        data.proyecto = data.proyecto;
+    if (data.iddispositivo) {
+        data.proyecto= data.proyecto;
+        data.cliente = data.cliente;
+        data.medidor= data.medidor;
+        data.iddispositivo= data.iddispositivo;
+        data.matricula= data.matricula;
+        data.direccion= data.direccion;
+        data.georeferencia= data.georeferencia;
 
     }
 
@@ -87,9 +75,7 @@ const actualizarDispositivo = async (req, res = response) => {
 
 //Borrar Dispositivoes -estado: false
 const borrarDispositivo = async (req, res = response) => {
-    console.log('borrar');
     const { id } = req.params;
-    //const DispositivoesBorrada = await Dispositivoes.findByIdAndUpdate(id, {estado:false },{ new: true });
     const DispositivoesBorrada = await Dispositivo.findByIdAndRemove(id);
     res.json(DispositivoesBorrada);
 

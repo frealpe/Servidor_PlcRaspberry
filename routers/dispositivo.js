@@ -28,7 +28,7 @@ router.get('/:id', [
 router.post('/', [
     //esAdminRole,
     validarJWT,
-    check('proyecto', 'El proyecto es Obligatorio').not().isEmpty(),
+    check('iddispositivo', 'El identificador es Obligatorio').not().isEmpty(),
     validarCampos
 ], crearDispositivo);
 
@@ -36,7 +36,7 @@ router.post('/', [
 router.put('/:id', [
     validarJWT,
 //    esAdminRole,
-    check('denominacion', 'La Denominacion es Obligatorio').not().isEmpty(),
+    check('iddispositivo', 'El identificador es Obligatorio').not().isEmpty(),
     check('id').custom(existeDispositivoPorId),
     validarCampos
 ], actualizarDispositivo);
