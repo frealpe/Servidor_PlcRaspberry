@@ -78,7 +78,6 @@ const existeDispositivoPorId = async (id) => {
     }
 }
 /////////////////////////////////////////////////////////////////
-
 const existeClientePorId = async (id) => {
     //Verifcar si existe el correo
     const existeUsuario = await Cliente.findById(id);
@@ -87,6 +86,16 @@ const existeClientePorId = async (id) => {
 
     }
 }
+/////////////////////////////////////////////////////////////////
+const existeMedicionPorId = async (id) => {
+    //Verifcar si existe el correo
+    const existeUsuario = await Cliente.findById(id);
+    if (!existeUsuario) {
+        throw new Error(`El id no existe: ${id}`);
+
+    }
+}
+/////////////////////////////////////////////////////////////////
 module.exports = {
     esRoleVaido,
     emailExiste,
@@ -96,5 +105,6 @@ module.exports = {
     existeTMedidorPorId,
     existeMedidorPorId,
     existeDispositivoPorId,
-    existeClientePorId
+    existeClientePorId,
+    existeMedicionPorId
 }

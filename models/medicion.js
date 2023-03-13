@@ -43,10 +43,6 @@ const MedicionSchema = Schema({
         type: String,
     },  
 
-
-
-
-
 });
 
 MedicionSchema.methods.toJSON = function () {

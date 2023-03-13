@@ -16,10 +16,15 @@ const DispositivoSchema = Schema({
 
     medidor:{
         type: Schema.Types.ObjectId,    //Lo usamos para relacionar el operador al proyecto
-        ref: 'Medidor',             //El operador del proyecto
+        ref: 'Medidor',                 //El operador del proyecto
         require: true
-
     },   
+
+    medicion:{
+        type: Schema.Types.ObjectId,    //Lo usamos para relacionar el operador al proyecto
+        ref: 'Medicion',                 //El operador del proyecto
+        require: true
+    },
 
     iddispositivo: {
         type: String,    //Lo usamos para relacionar el operador al proyecto
@@ -40,7 +45,8 @@ const DispositivoSchema = Schema({
     georeferencia:{
         type: String,        
         require: true      
-    }    
+    } 
+      
 
 
 });

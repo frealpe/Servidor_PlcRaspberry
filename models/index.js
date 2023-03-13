@@ -8,6 +8,7 @@ const Proyecto= require('./proyecto');
 const Cliente = require('./cliente');
 const Dispositivo = require('./dispositivo');
 const Medidor = require('./medidor');
+const Medicion = require('./medicion');
 const TipoMedidor = require('./tipomedidor');
 
 module.exports={
@@ -20,5 +21,6 @@ module.exports={
     Cliente,
     Dispositivo,  
     Medidor,
+    Medicion,
     TipoMedidor 
 }
