@@ -1,9 +1,8 @@
 const Router = require('express');
 const { check } = require('express-validator');
 const { crearMedicion,
-        obtenerMedicion,
-        obtenerMediciones} = require('../controllers/medicion');
-const { existeMedicionPorId} = require('../helpers/db-validators');
+        obtenerMedicion} = require('../controllers/medicion');
+//const { existeMedicionPorId} = require('../helpers/db-validators');
 const { validarJWT, validarCampos} = require('../middlewares');
 
 const router = Router();
@@ -11,14 +10,6 @@ const router = Router();
 //Obtener todas las Medicion publico
 router.get('/', [
     validarJWT, 
-    validarCampos
-], obtenerMediciones);
-
-//Obtener una Medicion por id-publico
-router.get('/:id', [
-    //validarJWT, 
-    check('id','No es un id de Mongo válido').isMongoId(),
-    check('id').custom(existeMedicionPorId),
     validarCampos
 ], obtenerMedicion);
 
