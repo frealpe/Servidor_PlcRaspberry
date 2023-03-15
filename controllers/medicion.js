@@ -1,5 +1,5 @@
 const { response } = require("express");
-const {Medicion} = require('../models');
+const {Medicion, Dispositivo} = require('../models');
 
 
 //Obtener Mediciones - por id populate ()
@@ -15,9 +15,9 @@ const obtenerMedicion = async (req, res = response) => {
 //Crear una Mediciones 
 const crearMedicion = async (req, res = response) => {   
     
-    const dipositivo = req.body.dipositivo;    
+    const dipositivo = req.body.dispositivo;    
 
-    const MedicionesDB = await Medicion.findOne({dipositivo});
+    const MedicionesDB = await Dispositivo.findOne({dipositivo});
     console.log(MedicionesDB);
     if (!MedicionesDB) {
         return res.status(400).json({
@@ -25,7 +25,7 @@ const crearMedicion = async (req, res = response) => {
         });
     }  
     const data = {
-        dipositivo:req.body.dipositivo,
+        dispositivo:req.body.dispositivo,
         fecha:req.body.fecha,
         nivelbateria:req.body.nivelbateria,        
         rssi: req.body.rssi,

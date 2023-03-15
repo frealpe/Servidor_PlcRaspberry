@@ -11,13 +11,13 @@ const router = Router();
 router.get('/', [
     validarJWT, 
     validarCampos
-], obtenerMedicion);
+], obtenerMedicion); 
 
 //Crear un Medicion privado - cualqiuer persona con un token valido
 router.post('/', [
     //esAdminRole,
-    validarJWT,
-    check('dipositivo', 'El dipositivo es Obligatorio').not().isEmpty(),
+    //validarJWT,
+    check('dispositivo', 'El dipositivo es Obligatorio').not().isEmpty(),
     validarCampos
 ], crearMedicion);
 

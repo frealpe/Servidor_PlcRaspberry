@@ -2,7 +2,7 @@ const { Schema, model } = require('mongoose')
 
 const MedicionSchema = Schema({
 
-    dipositivo:{
+    dispositivo:{
         type: Schema.Types.ObjectId,
         ref:'Dispositivo',
         require: true,
