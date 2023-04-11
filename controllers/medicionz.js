@@ -26,14 +26,39 @@ const crearMedicionz = async (req, res = response) => {
     const data = {
         dispositivo:req.body.dispositivo,
         fecha:req.body.fecha,
-        nivelbateria:req.body.nivelbateria,        
-        rssi: req.body.rssi,
-        varc1:req.body.varc1,        
-        varc2:req.body.varc2,        
-        varc3:req.body.varc3,        
-        varc4:req.body.varc4,                                
-        alarmas:req.body.alarmas,        
-        downlink:req.body.downlink,        
+        purchasegasgross:req.body.purchasegasgross,        
+        pulsebreak: req.body.pulsebreak,
+        workcumulunt:req.body.workcumulunt,        
+        batterymillivolt:req.body.batterymillivolt,        
+        isshock:req.body.isshock,        
+        sparebatterymillivolt:req.body.sparebatterymillivolt,                                
+        reederr:req.body.reederr,        
+        disassemble:req.body.disassemble,
+        ljoutlimitsfailure:req.body.ljoutlimitsfailure,
+        isflowexception:req.body.isflowexception,
+        temperature:req.body.temperature,
+        isbatterybad:req.body.isbatterybad,
+        isrevealgas:req.body.isrevealgas,
+        isckqvclose:req.body.isckqvclose,
+        isvalveerr:req.body.isvalveerr,
+        powerfailure:req.body.powerfailure,
+        arrearsclosevalue:req.body.arrearsclosevalue,
+        iswycgqfault:req.body.iswycgqfault,
+        isvalveclose:req.body.isvalveclose,
+        iscommunicatebad:req.body.iscommunicatebad,
+        isinnerbaterr:req.body.isinnerbaterr,
+        signalintensity:req.body.signalintensity,
+        isremoteclosevalve:req.body.isremoteclosevalve,
+        ismagneticdisturbance:req.body.ismagneticdisturbance,  
+        scrapfailure:req.body.scrapfailure,  
+        alarmclosevalue:req.body.alarmclosevalue,  
+        securitycheckfailure:req.body.securitycheckfailure,  
+        reportmode:req.body.reportmode,        
+        remaindergasamount:req.body.remaindergasamount,        
+
+        
+
+
     }
     const Medicionzd = new Medicionz(data);
     await Medicionzd.save();
