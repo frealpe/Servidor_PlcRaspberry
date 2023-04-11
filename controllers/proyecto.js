@@ -8,8 +8,8 @@ const obtenerProyectos = async (req, res = response) => {
     const [totales, Proyectos] = await Promise.all([
         Proyecto.countDocuments(query),
         Proyecto.find(query)
-        .populate('ciudad','nombre')
-        .populate('operador','nombre')
+        .populate('ciudad')
+        .populate('operador')
     ]) 
     res.json({
         totales,

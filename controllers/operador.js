@@ -21,8 +21,6 @@ const obtenerOperadores = async (req, res = response) => {
 const obtenerOperador = async (req, res = response) => {
     
     const {id} = req.params;
-    console.log("Entre");
-    console.log(id);
     const Operadores = await Operador.findById(id);
     res.json({
         Operadores
@@ -31,21 +29,20 @@ const obtenerOperador = async (req, res = response) => {
 
 //Crear una Operador 
 const crearOperador = async (req, res = response) => {
-    
-    const nitOperador = req.body.nit;
 
-    const OperadoresDB = await Operador.findOne({nitOperador});
+    const nombreOperador = req.body.nombre;
+    const OperadoresDB = await Operador.findOne({nombre:nombreOperador});
+    
     if (OperadoresDB) {
         return res.status(400).json({
-            msg: `El Operador ${OperadoresDB.idOperador},ya existe`
+            msg: `El Operador ${OperadoresDB},ya existe`
         });
     }  
     const data = {
-        nombre: req.body.nombre,
-        nitOperador,
+        nombre:req.body.nombre,
     }
-    const Operadores = new Operador(data);
-    await Operadores.save();
+    const Operadores = new Operador(data);  
+    await Operadores.save();  
     res.status(201).json(Operadores);
 }
 

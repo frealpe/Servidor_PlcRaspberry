@@ -5,18 +5,13 @@ const OperadorSchema = Schema({
     nombre: {
         type: String,
         require: [true,'El nombre es obligatorio'],
-        unique: true
+         unique: true 
     },    
-    nit: {
-        type: String,
-        require: [true,'El nit es obligatorio'],
-        unique: true
-    },
 
 });
 
 OperadorSchema.methods.toJSON = function () {
-    const {__v,_id, ...data } = this.toObject();
+    const {__v,_id,...data } = this.toObject();
     data.id=_id;
     return data;
 }

@@ -1,52 +1,52 @@
 const Router = require('express');
 const { check } = require('express-validator');
-const { crearProyecto,
-        obtenerProyecto,
-        actualizarProyecto,
-        borrarProyecto,
-        obtenerProyectos} = require('../controllers/proyecto');
-const { existeProyectoPorId} = require('../helpers/db-validators');
+const { crearCiudad,
+        obtenerCiudad,
+        actualizarCiudad,
+        borrarCiudad,
+        obtenerCiudades} = require('../controllers/ciudad');
+const { existeCiudadPorId} = require('../helpers/db-validators');
 const { validarJWT, validarCampos} = require('../middlewares');
 
 const router = Router();
 
-//Obtener todas las Proyecto publico
+//Obtener todas las Ciudad publico
 router.get('/', [
     validarJWT, 
     validarCampos
-], obtenerProyectos); 
+], obtenerCiudades);
 
-//Obtener una Proyecto por id-publico
+//Obtener una Ciudad por id-publico
 router.get('/:id', [
     //validarJWT, 
     check('id','No es un id de Mongo válido').isMongoId(),
-    check('id').custom(existeProyectoPorId),
+    check('id').custom(existeCiudadPorId),
     validarCampos
-], obtenerProyecto);
+], obtenerCiudad);
 
-//Crear un Proyecto privado - cualqiuer persona con un token valido
+//Crear un Ciudad privado - cualqiuer persona con un token valido
 router.post('/', [
     //esAdminRole,
     validarJWT,
     check('nombre', 'El nombre es Obligatorio').not().isEmpty(),
     validarCampos
-], crearProyecto);
+], crearCiudad);
 
 //Actualizar privado token valido
 router.put('/:id', [
     validarJWT,
 //    esAdminRole,
     check('nombre', 'El nombre es obligatorio').not().isEmpty(),
-    check('id').custom(existeProyectoPorId),
+    check('id').custom(existeCiudadPorId),
     validarCampos
-], actualizarProyecto);
+], actualizarCiudad);
  
-//Borrar Proyecto solo Admin
+//Borrar Ciudad solo Admin
 router.delete('/:id', [
     validarJWT,
 //    esAdminRole,
     check('id', 'No es un id de Mongo válido').isMongoId(),
     validarCampos
-], borrarProyecto);
+], borrarCiudad);
 
 module.exports = router;

@@ -17,9 +17,11 @@ class Server {
             proyecto:       '/api/proyecto',            
             tipomedidor:    '/api/tipomedidor',            
             medidor:        '/api/medidor',
+            ciudad:         '/api/ciudad',
             cliente:        '/api/cliente',
             dispositivo:    '/api/dispositivo',
             medicion:       '/api/medicion',
+            medicionz:      '/api/medicionz',
             /*             
             inventario:     '/api/inventario',           
  */
@@ -58,13 +60,15 @@ class Server {
         this.app.use(this.paths.auth, require('../routers/auth'));
         this.app.use(this.paths.usuarios, require('../routers/usuarios'));
         this.app.use(this.paths.buscar, require('../routers/buscar'));
-        this.app.use(this.paths.operador, require('../routers/operador')); 
+        this.app.use(this.paths.operador, require('../routers/operador'));
+        this.app.use(this.paths.ciudad, require('../routers/ciudad')); 
         this.app.use(this.paths.proyecto, require('../routers/proyecto'));
         this.app.use(this.paths.tipomedidor, require('../routers/tipomedidor'));
         this.app.use(this.paths.medidor, require('../routers/medidor'));
         this.app.use(this.paths.cliente, require('../routers/cliente'));
         this.app.use(this.paths.dispositivo, require('../routers/dispositivo'));   
         this.app.use(this.paths.medicion, require('../routers/medicion'));        
+        this.app.use(this.paths.medicionz, require('../routers/medicionz'));                
         
         /*         
         this.app.use(this.paths.inventario, require('../routers/inventario'));           

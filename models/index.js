@@ -10,6 +10,7 @@ const Dispositivo = require('./dispositivo');
 const Medidor = require('./medidor');
 const Medicion = require('./medicion');
 const TipoMedidor = require('./tipomedidor');
+const Medicionz = require('./medicionz');
 
 module.exports={
     Role,
@@ -22,5 +23,6 @@ module.exports={
     Dispositivo,  
     Medidor,
     Medicion,
+    Medicionz,    
     TipoMedidor 
 }

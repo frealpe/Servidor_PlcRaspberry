@@ -1,24 +1,24 @@
 const { response } = require("express");
-const {Medicion, Dispositivo} = require('../models');
+const {Medicionz, Dispositivo} = require('../models');
 
 
-//Obtener Mediciones - por id populate ()
-const obtenerMedicion = async (req, res = response) => {
+//Obtener Medicionzes - por id populate ()
+const obtenerMedicionz = async (req, res = response) => {
 
     const {id} = req.params;
-    const Medicions = await Medicion.findById(id);
+    const Medicionzs = await Medicionz.findById(id);
     res.json({
-        Medicions
+        Medicionzs
     }); 
 }
 
-//Crear una Mediciones 
-const crearMedicion = async (req, res = response) => {   
+//Crear una Medicionzes 
+const crearMedicionz = async (req, res = response) => {   
     
     const dipositivo = req.body.dispositivo;    
 
-    const MedicionesDB = await Dispositivo.findOne({dipositivo});
-    if (!MedicionesDB) {
+    const MedicionzesDB = await Dispositivo.findOne({dipositivo});
+    if (!MedicionzesDB) {
         return res.status(400).json({
             msg: `El Dispositivo ${dipositivo},no existe`
         });
@@ -35,12 +35,12 @@ const crearMedicion = async (req, res = response) => {
         alarmas:req.body.alarmas,        
         downlink:req.body.downlink,        
     }
-    const Mediciond = new Medicion(data);
-    await Mediciond.save();
-    res.status(201).json(Mediciond);
+    const Medicionzd = new Medicionz(data);
+    await Medicionzd.save();
+    res.status(201).json(Medicionzd);
 }
 
 module.exports = {
-    obtenerMedicion,
-    crearMedicion,
+    obtenerMedicionz,
+    crearMedicionz,
 }
