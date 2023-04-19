@@ -8,7 +8,7 @@ const { validarJWT, validarCampos} = require('../middlewares');
 const router = Router();
 
 //Obtener todas las Medicion publico
-router.get('/', [
+router.get('/:id', [
     validarJWT, 
     validarCampos
 ], obtenerMedicionz); 

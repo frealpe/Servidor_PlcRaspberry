@@ -22,6 +22,7 @@ class Server {
             dispositivo:    '/api/dispositivo',
             medicion:       '/api/medicion',
             medicionz:      '/api/medicionz',
+            control:        '/api/control',   
             /*             
             inventario:     '/api/inventario',           
  */
@@ -69,6 +70,7 @@ class Server {
         this.app.use(this.paths.dispositivo, require('../routers/dispositivo'));   
         this.app.use(this.paths.medicion, require('../routers/medicion'));        
         this.app.use(this.paths.medicionz, require('../routers/medicionz'));                
+        this.app.use(this.paths.control, require('../routers/control'));  
         
         /*         
         this.app.use(this.paths.inventario, require('../routers/inventario'));           
