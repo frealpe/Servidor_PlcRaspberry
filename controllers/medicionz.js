@@ -6,8 +6,6 @@ const obtenerMedicionz = async (req, res = response) => {
 
   const { id } = req.params;
 
-  console.log(id);
-
   const Medicionzs = await Medicionz.find({
         dispositivo: id,
   });

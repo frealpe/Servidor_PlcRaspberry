@@ -17,7 +17,7 @@ const ususariosGet = async(req=request, res = response) => {
         Usuario.countDocuments(query),
         Usuario.find(query) 
         .skip(Number(desde))
-        .limit(Number(limite))
+        .limit(Number(limite))   
 
     ])
 

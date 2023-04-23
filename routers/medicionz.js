@@ -14,7 +14,7 @@ router.get('/:id', [
 ], obtenerMedicionz); 
 
 //Crear un Medicion privado - cualqiuer persona con un token valido
-router.post('/', [
+router.post('/:id', [
     //esAdminRole,
     //validarJWT,
     check('dispositivo', 'El dipositivo es Obligatorio').not().isEmpty(),
