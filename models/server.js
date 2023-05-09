@@ -15,11 +15,12 @@ class Server {
             buscar:         '/api/buscar',
             operador:       '/api/operador',
             proyecto:       '/api/proyecto',            
-            tipomedidor:    '/api/tipomedidor',            
+            tipomedidor:    '/api/tipomedidor', 
+            clasemedidor:   '/api/clasemedidor',                        
             medidor:        '/api/medidor',
             ciudad:         '/api/ciudad',
             cliente:        '/api/cliente',
-            dispositivo:    '/api/dispositivo',
+            dispositivo:    '/api/dispositivo',  //Se 
             medicion:       '/api/medicion',
             medicionz:      '/api/medicionz',
             control:        '/api/control',   
@@ -65,6 +66,7 @@ class Server {
         this.app.use(this.paths.ciudad, require('../routers/ciudad')); 
         this.app.use(this.paths.proyecto, require('../routers/proyecto'));
         this.app.use(this.paths.tipomedidor, require('../routers/tipomedidor'));
+        this.app.use(this.paths.clasemedidor, require('../routers/clasemedidor'));        
         this.app.use(this.paths.medidor, require('../routers/medidor'));
         this.app.use(this.paths.cliente, require('../routers/cliente'));
         this.app.use(this.paths.dispositivo, require('../routers/dispositivo'));   

@@ -2,53 +2,96 @@ const { Schema, model } = require('mongoose')
 
 const DispositivoSchema = Schema({
 
+    
     proyecto:{
         type: Schema.Types.ObjectId,
         ref:'Proyecto',
-        require: true,
     },
+    
+    matricula:{
+        type: String,              
+    },
+
+    cuentaContrato:{
+        type: String,            
+    },    
 
     cliente: {
-        type: Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,    //Pendiente por mirar asociar telefono e información
         ref:'Cliente',
-        require: true,
-    },        
-
-    medidor:{
-        type: Schema.Types.ObjectId,    //Lo usamos para relacionar el operador al proyecto
-        ref: 'Medidor',                 //El operador del proyecto
-        require: true
-    },   
-
-    medicion:{
-        type: Schema.Types.ObjectId,    //Lo usamos para relacionar el operador al proyecto
-        ref: 'Medicion',                 //El operador del proyecto
-        require: true
+    },  
+    
+    direccionInstalacion:{
+        type: String,  
     },
 
-    iddispositivo: {
+    geoInstalacion:{
+        type: String,        
+  
+    }, 
+
+    zonaInstalacion:{
+        type: String, 
+
+    },
+
+    estrato:{
+        type: String, 
+
+    },
+
+    categoria:{
+        type: String, 
+        default: "residencial"
+    },
+
+    ruta:{
+        type: String,         
+    },
+    
+    serieMedidor:{
+        type: Schema.Types.ObjectId,    //Marca, Modelo y Tipo van en el medidor
+        ref: 'Medidor',                 
+        require: true,
+        unique: true           
+    },   
+
+    serieIot: {
         type: String,    //Lo usamos para relacionar el operador al proyecto
         require: true,
         unique: true   
     },
 
-    matricula:{
-        type: String,        
-        require: true      
+    estadoInstalacion:{
+        type: String,    //Lo usamos para relacionar el operador al proyecto
+        default: "proyectado"
     },
 
-    direccion:{
-        type: String,        
-        require: true      
+
+    fechaInstalacion:{
+        type: String,    //Lo usamos para relacionar el operador al proyecto
     },
 
-    georeferencia:{
-        type: String,        
-        require: true      
-    } 
-      
+    fechaActivacion:{
+        type: String,    //Lo usamos para relacionar el operador al proyecto
+    },
 
+    fechaUltimoReporte:{
+        type: String,    //Lo usamos para relacionar el operador al proyecto
+    },
 
+    ultimaMedicion:{
+        type: String,    //Lo usamos para relacionar el operador al proyecto
+    },
+//TODO Crear y asociar un  nuevo modelo de Novedad dispositivo
+//Fecha-Observacion-Usuario Plataforma que registra la novedad
+    medicion:{
+        type: Schema.Types.ObjectId,    
+        ref: 'Medicion',                 
+        require: true
+    },
+
+        
 });
 
 DispositivoSchema.methods.toJSON = function () {

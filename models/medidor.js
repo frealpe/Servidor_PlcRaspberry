@@ -2,22 +2,32 @@ const { Schema, model } = require('mongoose')
 
 const MedidorSchema = Schema({
 
-    proyecto:{
-        type: Schema.Types.ObjectId,
-        ref:'Proyecto',
-        require: true,
-    },
-    
-    idmedidor: {
+   
+    serie: {
         type: String,
-        require: [true, 'El id es Obligatorio'],
+        require: [true, 'La serie es Obligatoria'],
         unique: true
     },        
-    tipomedidor: {
+
+    marca: {
+        type: Schema.Types.ObjectId,    //Lo usamos para relacionar el operador al proyecto
+        ref: 'MarcaMedidor',             //El operador del proyecto
+        require: true
+    },
+
+    modelo: {
+        type: Schema.Types.ObjectId,    //Lo usamos para relacionar el operador al proyecto
+        ref: 'ModeloMedidor',             //El operador del proyecto
+        require: true
+    },
+
+
+    tipo: {
         type: Schema.Types.ObjectId,    //Lo usamos para relacionar el operador al proyecto
         ref: 'TipoMedidor',             //El operador del proyecto
         require: true
     },
+
 
 });
 

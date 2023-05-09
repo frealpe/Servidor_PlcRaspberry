@@ -1,19 +1,19 @@
 const { Schema, model } = require('mongoose')
 
-const TipoMedidorSchema = Schema({
+const MarcaMedidorSchema = Schema({
 
     nombre: {
         type: String,
-        require: [true, 'El tipo de Medidor Obligatorio'],
+        require: [true, 'La marca es Obligatorio'],
         unique: true
     },        
 
 });
 
-TipoMedidorSchema.methods.toJSON = function () {
+MarcaMedidorSchema.methods.toJSON = function () {
     const {__v,_id, ...data } = this.toObject();
     data.id=_id;
     return data;
 }
 
-module.exports = model('TipoMedidor',TipoMedidorSchema);
+module.exports = model('MarcaMedidor',MarcaMedidorSchema);

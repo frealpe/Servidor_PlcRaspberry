@@ -2,22 +2,41 @@ const { Schema, model } = require('mongoose')
 
 const ProyectoSchema = Schema({
 
-    nombre: {
+    idPiloto: {
         type: String,
-        require: [true, 'El nombre es obligatorio'],
+        require: [true, 'El nombre es obligatorio'],        //id Piloto
         unique: true
-    },        
-    ciudad: {
-        type: Schema.Types.ObjectId,    //Lo usamos para relacionar la ciudad al proyecto
-        ref: 'Ciudad',                  //Ciudad donde funciona el proyecto
-        require: true
     },
+
     operador: {
         type: Schema.Types.ObjectId,    //Lo usamos para relacionar el operador al proyecto
         ref: 'Operador',                //El operador del proyecto
         require: true
     },
-    
+        
+    departamento: {
+        type: Schema.Types.ObjectId,    //Lo usamos para relacionar el departamento del proyecto
+        ref: 'Departamento',            //Departamento donde funciona el proyecto
+        require: true,
+        },
+   
+    ciudad: {
+        type: Schema.Types.ObjectId,    //Lo usamos para relacionar la ciudad al proyecto
+        ref: 'Ciudad',                  //Ciudad donde funciona el proyecto
+        require: true,
+    },
+
+    estado:{
+       type: String,  
+       require: true,
+       default: "Proyectado"  
+    },
+   
+    fechaCreado:{
+        type: String,  
+        require: true,
+     },    
+
 });
 
 ProyectoSchema.methods.toJSON = function () {

@@ -50,4 +50,4 @@ MedicionSchema.methods.toJSON = function () {
   return data;
 };
 
-module.exports = model("Medicion", MedicionSchema);
+module.exports = model("Medicionl", MedicionSchema);

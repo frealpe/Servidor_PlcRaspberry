@@ -8,7 +8,7 @@ const obtenerMedicionz = async (req, res = response) => {
 
   const Medicionzs = await Medicionz.find({
         dispositivo: id,
-  });
+  }).sort( {time: -1});
   res.json({
     Medicionzs,
   }); 

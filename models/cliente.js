@@ -11,7 +11,18 @@ const ClienteSchema = Schema({
     nombre: {
         type: String,
         require: [true, 'El nombre es obligatorio'],
+    }, 
+
+    telefono: {
+        type: String,
+        require: [true, 'El telefono es obligatorio'],
+    }, 
+
+    correo: {
+        type: String,      
     } 
+
+
 
 });
 
