@@ -24,12 +24,17 @@ const ProyectoSchema = Schema({
         type: Schema.Types.ObjectId,    //Lo usamos para relacionar la ciudad al proyecto
         ref: 'Ciudad',                  //Ciudad donde funciona el proyecto
         require: true,
-    },
+    }, 
 
     estado:{
        type: String,  
        require: true,
        default: "Proyectado"  
+    },
+
+    numerodispo:{
+        type: String,  
+        require: true, 
     },
    
     fechaCreado:{

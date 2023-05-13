@@ -1,6 +1,6 @@
 const { Schema, model } = require("mongoose");
 
-const MedicionSchema = Schema({
+const MediciondSchema = Schema({
   dispositivo: {
     type: Schema.Types.ObjectId,
     ref: "Dispositivo",
@@ -44,10 +44,10 @@ const MedicionSchema = Schema({
   },
 });
 
-MedicionSchema.methods.toJSON = function () {
+MediciondSchema.methods.toJSON = function () {
   const { __v, _id, ...data } = this.toObject();
   data.id = _id;
   return data;
 };
 
-module.exports = model("Mediciond", MedicionSchema);
+module.exports = model("Mediciond", MediciondSchema);

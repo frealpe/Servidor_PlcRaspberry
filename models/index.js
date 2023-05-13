@@ -4,14 +4,16 @@ const Server = require('./server');
 const Usuario = require('./usuario');
 const Operador = require('./operador');
 const Ciudad = require('./ciudad');
+const Departamento = require('./departamento');
 const Proyecto= require('./proyecto');
 const Cliente = require('./cliente');
 const Dispositivo = require('./dispositivo');
 const Medidor = require('./medidor');
-const Medicion = require('./mediciond');
-const TipoMedidor = require('./modelomedidor');
-const ClaseMedidor = require('./marcamedidor');
+const Mediciond = require('./mediciond');
+const Medicionl = require('./medicionl');
 const Medicionz = require('./medicionz');
+const ModeloMedidor = require('./modelomedidor');
+const MarcaMedidor = require('./marcamedidor');
 
 
 module.exports={
@@ -20,12 +22,14 @@ module.exports={
     Usuario,
     Operador,
     Ciudad,
+    Departamento,
     Proyecto,
     Cliente,
     Dispositivo,  
     Medidor,
-    Medicion,
+    Mediciond,
+    Medicionl,    
     Medicionz,    
-    TipoMedidor,
-    ClaseMedidor 
+    ModeloMedidor,
+    MarcaMedidor 
 }

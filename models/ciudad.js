@@ -2,10 +2,23 @@ const { Schema, model } = require('mongoose')
 
 const CiudadSchema = Schema({
 
+    codigoDepartamento:{
+        type: String,
+    },    
+
+    departamento:{
+        type: String,
+    },   
+
+    codigoMunicipio:{
+        type: String,
+        require: [true, 'El codigo es obligatorio'],
+        unique: true
+    }, 
+    
     nombre: {
         type: String,
         require: [true, 'El nombre es obligatorio'],
-        unique: true
     },    
 
 });
@@ -16,3 +29,4 @@ CiudadSchema.methods.toJSON = function () {
 }
 
 module.exports = model('Ciudad',CiudadSchema);
+
