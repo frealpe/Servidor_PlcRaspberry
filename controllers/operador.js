@@ -32,14 +32,14 @@ const crearOperador = async (req, res = response) => {
 
     const nombreOperador = req.body.nombre;
     const OperadoresDB = await Operador.findOne({nombre:nombreOperador});
-    
+    console.log(nombreOperador);
     if (OperadoresDB) {
         return res.status(400).json({
             msg: `El Operador ${OperadoresDB},ya existe`
         });
     }  
     const data = {
-        nombre:req.body.nombre,
+        nombre:nombreOperador,
     }
     const Operadores = new Operador(data);  
     await Operadores.save();  

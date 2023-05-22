@@ -29,24 +29,36 @@ const obtenerProyecto = async (req, res = response) => {
 
 //Crear una Proyecto 
 const crearProyecto = async (req, res = response) => {
-    
-    const nombre = req.body.nombre;
-
-    const ProyectoDB = await Proyecto.findOne({nombre});
-    if (ProyectoDB) {
-        return res.status(400).json({
-            msg: `El Proyecto ${ProyectoDB.idProyecto},ya existe`
+       
+    console.log("Crear Proyecto");
+    const Piloto = req.body.idPiloto;    
+    try{
+        const ProyectoDB = await Proyecto.findOne({idPiloto:Piloto});
+        if (ProyectoDB) {
+            return res.status(400).json({ 
+            msg: "Grabado",
+            });
+        }  
+        const data = {
+            idPiloto: req.body.idPiloto, 
+            operador: req.body.operador,
+            departamento: req.body.departamento,
+            municipio: req.body.municipio,
+            estado: req.body.estado,
+            numerodispo: req.body.numerodispo,
+            fechaCreado: req.body.fechaCreado,  
+            
+        }
+        console.log("Datos a Grabar",data);    
+        const Proyectos = new Proyecto(data);
+        await Proyectos.save();
+        res.status(201).json(Proyectos); 
+    }catch (error) {
+        json.status(400).json({
+          ok: false,
+          msg: "Ingreso",
         });
-    }  
-    const data = {
-        nombre: req.body.nombre,
-        ciudad: req.body.ciudad,
-        operador: req.body.operador
-
-    }
-    const Proyectos = new Proyecto(data);
-    await Proyectos.save();
-    res.status(201).json(Proyectos);
+      }
 }
 
 //Actulizar Proyectoes 
@@ -79,4 +91,4 @@ module.exports = {
     crearProyecto,
     actualizarProyecto,
     borrarProyecto
-}
+} 

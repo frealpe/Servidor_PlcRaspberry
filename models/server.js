@@ -18,7 +18,7 @@ class Server {
             tipomedidor:    '/api/tipomedidor', 
             clasemedidor:   '/api/clasemedidor',                        
             medidor:        '/api/medidor',
-            ciudad:         '/api/ciudad',
+            municipio:      '/api/municipio',
             departamento:   '/api/departamento',
             cliente:        '/api/cliente',
             dispositivo:    '/api/dispositivo',  //Se 
@@ -64,7 +64,7 @@ class Server {
         this.app.use(this.paths.usuarios, require('../routers/usuarios'));
         this.app.use(this.paths.buscar, require('../routers/buscar'));
         this.app.use(this.paths.operador, require('../routers/operador'));
-        this.app.use(this.paths.ciudad, require('../routers/ciudad')); 
+        this.app.use(this.paths.municipio, require('../routers/municipio')); 
         this.app.use(this.paths.departamento, require('../routers/departamento')); 
         this.app.use(this.paths.proyecto, require('../routers/proyecto'));
         this.app.use(this.paths.tipomedidor, require('../routers/tipomedidor'));
@@ -75,7 +75,7 @@ class Server {
         this.app.use(this.paths.medicion, require('../routers/mediciond'));        
         this.app.use(this.paths.medicionz, require('../routers/medicionz'));                
         this.app.use(this.paths.control, require('../routers/control'));  
-        
+           
         /*         
         this.app.use(this.paths.inventario, require('../routers/inventario'));           
  */

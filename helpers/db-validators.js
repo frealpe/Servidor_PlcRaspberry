@@ -105,7 +105,7 @@ const existeMedicionPorId = async (id) => {
     }
 }
 /////////////////////////////////////////////////////////////////
-const existeCiudadPorId = async (id) => {
+const existeMunicipioPorId = async (id) => {
     //Verifcar si existe el correo
     const existeUsuario = await Ciudad.findById(id);
     if (!existeUsuario) {
@@ -134,6 +134,6 @@ module.exports = {
     existeDispositivoPorId,
     existeClientePorId,
     existeMedicionPorId,
-    existeCiudadPorId,
+    existeMunicipioPorId,
     existeDepartamentoPorId
 }

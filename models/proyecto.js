@@ -4,7 +4,7 @@ const ProyectoSchema = Schema({
 
     idPiloto: {
         type: String,
-        require: [true, 'El nombre es obligatorio'],        //id Piloto
+        require: [true, 'El id es obligatorio'],        //id Piloto
         unique: true
     },
 
@@ -20,9 +20,9 @@ const ProyectoSchema = Schema({
         require: true,
         },
    
-    ciudad: {
+    municipio: {
         type: Schema.Types.ObjectId,    //Lo usamos para relacionar la ciudad al proyecto
-        ref: 'Ciudad',                  //Ciudad donde funciona el proyecto
+        ref: 'Municipio',                  //Ciudad donde funciona el proyecto
         require: true,
     }, 
 

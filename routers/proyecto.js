@@ -28,7 +28,8 @@ router.get('/:id', [
 router.post('/', [
     //esAdminRole,
     validarJWT,
-    check('nombre', 'El nombre es Obligatorio').not().isEmpty(),
+    check('idPiloto', 'El nombre es Obligatorio').not().isEmpty(),
+    check('operador', 'El operador es Obligatorio').not().isEmpty(),
     validarCampos
 ], crearProyecto);
 

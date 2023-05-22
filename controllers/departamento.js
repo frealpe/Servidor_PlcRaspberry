@@ -3,11 +3,7 @@ const {Departamento} = require('../models');
 
 //Obtener Departamentoes-Proyecto
 const obtenerDepartamentos = async (req, res = response) => {
-    //const {nombre} = req.params;
-    console.log(req.body);
-    console.log(req.params);
-    console.log("Entre");
-    
+   
     const query = { estado: true }; 
     const [totales, nombre] = await Promise.all([
         Departamento.countDocuments(query),
