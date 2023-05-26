@@ -3,16 +3,12 @@ const {Proyecto} = require('../models');
 
 //Obtener Proyectoes-Proyecto
 const obtenerProyectos = async (req, res = response) => {
-   
+   console.log("Cargar Proyectos");
     const query = { estado: true };
-    const [totales, Proyectos] = await Promise.all([
-        Proyecto.countDocuments(query),
-        Proyecto.find(query)
-        .populate('ciudad')
-        .populate('operador')
+    const [Proyectos] = await Promise.all([
+        Proyecto.find({})        
     ]) 
-    res.json({
-        totales,
+    res.json({        
         Proyectos,
     }); 
 }

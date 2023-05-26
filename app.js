@@ -1,5 +1,5 @@
 const { append } = require("express/lib/response");
-const Server = require("./models/server");
+const Server = require("./lib/server");
 
 require("dotenv").config();
 

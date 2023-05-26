@@ -1,6 +1,6 @@
 
 const Role = require('./role');
-const Server = require('./server');
+const Server = require('../lib/server');
 const Usuario = require('./usuario');
 const Operador = require('./operador');
 const Municipio = require('./municipio');
