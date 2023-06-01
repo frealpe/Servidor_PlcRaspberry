@@ -3,7 +3,7 @@ const {Proyecto} = require('../models');
 
 //Obtener Proyectoes-Proyecto
 const obtenerProyectos = async (req, res = response) => {
-   console.log("Cargar Proyectos");
+   //console.log("Cargar Proyectos");
     const query = { estado: true };
     const [Proyectos] = await Promise.all([
         Proyecto.find({})        
@@ -26,7 +26,7 @@ const obtenerProyecto = async (req, res = response) => {
 //Crear una Proyecto 
 const crearProyecto = async (req, res = response) => {
        
-    console.log("Crear Proyecto");
+    //console.log("Crear Proyecto");
     const Piloto = req.body.idPiloto;    
     try{
         const ProyectoDB = await Proyecto.findOne({idPiloto:Piloto});
@@ -62,12 +62,6 @@ const actualizarProyecto = async (req, res = response) => {
 
     const { id } = req.params;
     const {...data } = req.body;
-
-    if (data.nombre) {
-        data.nombre = data.nombre;
-        data.ciudad = data.ciudad;
-        data.operador= data.operador;
-    }
     const Proyectos = await Proyecto.findByIdAndUpdate(id, data,{ new: true });
     res.json(Proyectos);
 }

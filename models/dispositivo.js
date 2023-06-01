@@ -88,7 +88,7 @@ const DispositivoSchema = Schema({
     medicion:{
         type: Schema.Types.ObjectId,    
         ref: 'Medicion',                 
-        require: true
+        //require: true
     },
 
         

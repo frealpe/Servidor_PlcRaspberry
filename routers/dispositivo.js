@@ -28,7 +28,7 @@ router.get('/:id', [
 router.post('/', [
     //esAdminRole,
     validarJWT,
-    check('iddispositivo', 'El identificador es Obligatorio').not().isEmpty(),
+    check('serieMedidor', 'El serial de Medidor es Obligatorio').not().isEmpty(),
     validarCampos
 ], crearDispositivo);
 
@@ -36,7 +36,7 @@ router.post('/', [
 router.put('/:id', [
     validarJWT,
 //    esAdminRole,
-    check('iddispositivo', 'El identificador es Obligatorio').not().isEmpty(),
+    check('id','No es un id de Mongo válido').isMongoId(),
     check('id').custom(existeDispositivoPorId),
     validarCampos
 ], actualizarDispositivo);

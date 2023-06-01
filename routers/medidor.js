@@ -28,7 +28,7 @@ router.get('/:id', [
 router.post('/', [
     //esAdminRole,
     validarJWT,
-    check('idmedidor','El identificador es Obligatorio').not().isEmpty(),
+    check('serie','La serie es Obligatoria').not().isEmpty(),
     validarCampos
 ], crearMedidor);
 

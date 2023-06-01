@@ -1,11 +1,11 @@
 const Router = require('express');
 const { check } = require('express-validator');
-const { obtenerCMedidor,
-        actualizarCMedidor,
-        borrarCMedidor,        
-        obtenerCMedidores,
-        crearCMedidor} = require('../controllers/clasemedidor');
-const { existeCMedidorPorId} = require('../helpers/db-validators');
+const { obtenerMoMedidor,
+        actualizarMoMedidor,
+        borrarMoMedidor,        
+        obtenerMoMedidores,
+        crearMoMedidor} = require('../controllers/modelomedidor');
+const { existeMoMedidorPorId} = require('../helpers/db-validators');
 const { validarJWT, validarCampos} = require('../middlewares');
 
 const router = Router();
@@ -14,15 +14,15 @@ const router = Router();
 router.get('/', [
     validarJWT, 
     validarCampos
-], obtenerCMedidores);
+], obtenerMoMedidores);
 
 //Obtener una TMedidor por id-publico
 router.get('/:id', [
     //validarJWT, 
     check('id','No es un id de Mongo válido').isMongoId(),
-    check('id').custom(existeCMedidorPorId),
+    check('id').custom(existeMoMedidorPorId),
     validarCampos
-], obtenerCMedidor);
+], obtenerMoMedidor);
 
 //Crear un TMedidor privado - cualqiuer persona con un token valido
 router.post('/', [
@@ -30,16 +30,16 @@ router.post('/', [
     validarJWT,
     check('marca', 'La Marca es Obligatoria').not().isEmpty(),
     validarCampos
-], crearCMedidor);
+], crearMoMedidor);
 
 //Actualizar privado token valido
 router.put('/:id', [
     validarJWT,
 //    esAdminRole,
     check('denominacion', 'La Denominacion es Obligatorio').not().isEmpty(),
-    check('id').custom(existeCMedidorPorId),
+    check('id').custom(existeMoMedidorPorId),
     validarCampos
-], actualizarCMedidor);
+], actualizarMoMedidor);
  
 //Borrar TMedidor solo Admin
 router.delete('/:id', [
@@ -47,6 +47,6 @@ router.delete('/:id', [
 //    esAdminRole,
     check('id', 'No es un id de Mongo válido').isMongoId(),
     validarCampos
-], borrarCMedidor);
+], borrarMoMedidor);
  
 module.exports = router;

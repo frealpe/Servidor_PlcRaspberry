@@ -1,4 +1,4 @@
-const {Operador, Proyecto, TipoMedidor, Medidor, Dispositivo, Cliente, Ciudad, ClaseMedidor} = require('../models');
+const {Operador, Proyecto, TipoMedidor, Medidor, Dispositivo, Cliente, Ciudad, ClaseMedidor, MarcaMedidor, ModeloMedidor} = require('../models');
 const Role = require('../models/role');
 const Usuario = require('../models/usuario');
 
@@ -60,9 +60,18 @@ const existeTMedidorPorId = async (id) => {
 }
 
 /////////////////////////////////////////////////////////////////
-const existeCMedidorPorId = async (id) => {
+const existeMMedidorPorId = async (id) => {
     //Verifcar si existe el correo
-    const existeUsuario = await ClaseMedidor.findById(id);
+    const existeUsuario = await MarcaMedidor.findById(id);
+    if (!existeUsuario) {
+        throw new Error(`El id no existe: ${id}`);
+
+    }
+}
+/////////////////////////////////////////////////////////////////
+const existeMoMedidorPorId = async (id) => {
+    //Verifcar si existe el correo
+    const existeUsuario = await ModeloMedidor.findById(id);
     if (!existeUsuario) {
         throw new Error(`El id no existe: ${id}`);
 
@@ -135,5 +144,7 @@ module.exports = {
     existeClientePorId,
     existeMedicionPorId,
     existeMunicipioPorId,
-    existeDepartamentoPorId
+    existeDepartamentoPorId,
+    existeMMedidorPorId,
+    existeMoMedidorPorId
 }

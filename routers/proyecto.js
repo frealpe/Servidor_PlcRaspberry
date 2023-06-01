@@ -36,9 +36,8 @@ router.post('/', [
 //Actualizar privado token valido
 router.put('/:id', [
     validarJWT,
-//    esAdminRole,
-    check('nombre', 'El nombre es obligatorio').not().isEmpty(),
-    check('id').custom(existeProyectoPorId),
+    check('idPiloto', 'El idPilot es Obligatorio').not().isEmpty(),
+    check('operador', 'El operador es Obligatorio').not().isEmpty(),
     validarCampos
 ], actualizarProyecto);
  
