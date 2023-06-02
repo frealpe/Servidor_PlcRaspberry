@@ -132,6 +132,9 @@ const MedicionzSchema = Schema({
   remaindergasamount: {
     type: String,
   },
+  rssi:{
+   type: String,
+  }
 });
 
 MedicionzSchema.methods.toJSON = function () {

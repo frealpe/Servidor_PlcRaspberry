@@ -42,6 +42,9 @@ const MedicionlSchema = Schema({
   downlink: {
     type: String,
   },
+  rss:{
+    type: String,
+   }
 });
 
 MedicionlSchema.methods.toJSON = function () {
