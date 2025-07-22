@@ -5,14 +5,11 @@ const Municipio = require("./municipio");
 const Departamento = require("./departamento");
 const Proyecto = require("./proyecto");
 const Cliente = require("./cliente");
-const Dispositivo = require("./dispositivo");
-const Medidor = require("./medidor");
-const Mediciond = require("./mediciond");
-const Medicionl = require("./medicionl");
-const Medicionz = require("./medicionz");
-const MarcaMedidor = require("./marcamedidor");
-const ModeloMedidor = require("./modelomedidor");
-const TipoMedidor = require("./tipomedidor");
+const AdminProyecto = require("./adminproyecto");
+const LaborDiaria = require("./laboresdiarias");
+const Siembra = require("./siembra");
+const Riego = require("./riego");
+const Plagas = require("./plagas");
 
 module.exports = {
   Role,
@@ -22,12 +19,9 @@ module.exports = {
   Departamento,
   Proyecto,
   Cliente,
-  Dispositivo,
-  Medidor,
-  Mediciond,
-  Medicionl,
-  Medicionz,
-  MarcaMedidor,
-  ModeloMedidor,
-  TipoMedidor,
+  AdminProyecto,
+  LaborDiaria,
+  Siembra,
+  Riego,
+  Plagas
 };

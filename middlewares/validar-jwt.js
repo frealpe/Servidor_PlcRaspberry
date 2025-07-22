@@ -5,6 +5,7 @@ const Usuario = require('../models/usuario');
 const validarJWT = async (req=request,res=response,next)=>{
     //Params en la gestión debe ser x-token
     const token = req.header('x-token');
+    // console.log(token);
 
     if(!token){
 

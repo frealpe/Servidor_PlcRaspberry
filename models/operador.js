@@ -5,7 +5,7 @@ const OperadorSchema = Schema({
     nombre: {
         type: String,
         require: [true,'El nombre es obligatorio'],
-         unique: true 
+        unique: true 
     },    
 
 });

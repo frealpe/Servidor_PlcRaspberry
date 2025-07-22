@@ -2,10 +2,16 @@ const { Schema, model } = require('mongoose')
 
 const ProyectoSchema = Schema({
 
+    nombre: {
+        type: String,
+        require: [true, 'El id es obligatorio'],        //id Piloto
+        require: true
+    },
+
     idPiloto: {
         type: String,
         require: [true, 'El id es obligatorio'],        //id Piloto
-        unique: true
+        require: true
     },
 
     operador: {
@@ -32,12 +38,16 @@ const ProyectoSchema = Schema({
        default: "Proyectado"  
     },
 
-    numerodispo:{
+    geoInstalacion: {
+        type: String,
+    },
+    
+    numeroplantulas:{
         type: String,  
         require: true, 
     },
    
-    fechaCreado:{
+    fechacreado:{
         type: String,  
         require: true,
      },    

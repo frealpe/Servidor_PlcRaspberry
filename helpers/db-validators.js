@@ -1,6 +1,9 @@
-const {Operador, Proyecto, TipoMedidor, Medidor, Dispositivo, Cliente, Ciudad, ClaseMedidor, MarcaMedidor, ModeloMedidor} = require('../models');
+const {Operador, Proyecto, Siembra,
+       Cliente, Ciudad} = require('../models');
 const Role = require('../models/role');
 const Usuario = require('../models/usuario');
+const LaboresDiaria = require('../models/laboresdiarias');
+
 
 const esRoleVaido = async (rol = '') => {
     //Verifcar si existe el rol    
@@ -50,51 +53,8 @@ const existeProyectoPorId = async (id) => {
     }
 }
 /////////////////////////////////////////////////////////////////
-const existeTMedidorPorId = async (id) => {
-    //Verifcar si existe el correo
-    const existeUsuario = await TipoMedidor.findById(id);
-    if (!existeUsuario) {
-        throw new Error(`El id no existe: ${id}`);
-
-    }
-}
-
 /////////////////////////////////////////////////////////////////
-const existeMMedidorPorId = async (id) => {
-    //Verifcar si existe el correo
-    const existeUsuario = await MarcaMedidor.findById(id);
-    if (!existeUsuario) {
-        throw new Error(`El id no existe: ${id}`);
 
-    }
-}
-/////////////////////////////////////////////////////////////////
-const existeMoMedidorPorId = async (id) => {
-    //Verifcar si existe el correo
-    const existeUsuario = await ModeloMedidor.findById(id);
-    if (!existeUsuario) {
-        throw new Error(`El id no existe: ${id}`);
-
-    }
-}
-/////////////////////////////////////////////////////////////////
-const existeMedidorPorId = async (id) => {
-    //Verifcar si existe el correo
-    const existeUsuario = await Medidor.findById(id);
-    if (!existeUsuario) {
-        throw new Error(`El id no existe: ${id}`);
-
-    }
-}
-/////////////////////////////////////////////////////////////////
-const existeDispositivoPorId = async (id) => {
-    //Verifcar si existe el correo
-    const existeUsuario = await Dispositivo.findById(id);
-    if (!existeUsuario) {
-        throw new Error(`El id no existe: ${id}`);
-
-    }
-}
 /////////////////////////////////////////////////////////////////
 const existeClientePorId = async (id) => {
     //Verifcar si existe el correo
@@ -105,14 +65,7 @@ const existeClientePorId = async (id) => {
     }
 }
 /////////////////////////////////////////////////////////////////
-const existeMedicionPorId = async (id) => {
-    //Verifcar si existe el correo
-    const existeUsuario = await Cliente.findById(id);
-    if (!existeUsuario) {
-        throw new Error(`El id no existe: ${id}`);
 
-    }
-}
 /////////////////////////////////////////////////////////////////
 const existeMunicipioPorId = async (id) => {
     //Verifcar si existe el correo
@@ -132,19 +85,44 @@ const existeDepartamentoPorId = async (id) => {
     }
 }
 /////////////////////////////////////////////////////////////////
+const existeSiembraPorId = async (id) => {
+    //Verifcar si existe el correo
+    const existeSiembra = await Siembra.findById(id);
+    if (!existeSiembra) {
+        throw new Error(`El id no existe: ${id}`);
+
+    }
+}
+/////////////////////////////////////////////////////////////////
+
+const existeRiegoPorId = async (id) => {
+    //Verifcar si existe el correo
+    const existeRiego = await Riego.findById(id);
+    if (!existeRiego) {
+        throw new Error(`El id no existe: ${id}`);
+
+    }
+}
+/////////////////////////////////////////////////////////////////
+const existeLaborPorId = async (id) => {
+    //Verifcar si existe el correo
+    const existeLabor = await LaboresDiaria.findById(id);
+    if (!existeLabor) {
+        throw new Error(`El id no existe: ${id}`);
+
+    }
+}
+/////////////////////////////////////////////////////////////////
 module.exports = {
     esRoleVaido,
     emailExiste,
     existeUsuarioPorId,
     existeOperadorPorId,
     existeProyectoPorId,
-    existeTMedidorPorId,
-    existeMedidorPorId,
-    existeDispositivoPorId,
     existeClientePorId,
-    existeMedicionPorId,
     existeMunicipioPorId,
     existeDepartamentoPorId,
-    existeMMedidorPorId,
-    existeMoMedidorPorId
+    existeSiembraPorId,
+    existeRiegoPorId,
+    existeLaborPorId
 }

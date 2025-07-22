@@ -32,6 +32,7 @@ const obtenerCliente = async (req, res = response) => {
 const crearCliente = async (req, res = response) => {    
     
     const identificacion = req.body.identificacion;  
+    console.log(identificacion);
     const ClienteDB = await Cliente.findOne({identificacion});
     if (ClienteDB) {
         return res.status(400).json({
@@ -40,7 +41,8 @@ const crearCliente = async (req, res = response) => {
     }  
     const data = {
         identificacion: req.body.identificacion,  
-        nombre:req.body.nombre
+        nombre:req.body.nombre,
+        telefono:req.body.telefono,
     }
     const Clientedb = new Cliente(data);
     await Clientedb.save();
@@ -52,6 +54,7 @@ const actualizarCliente = async (req, res = response) => {
 
     const { id } = req.params;
     const {...data } = req.body;
+    console.log({...data});
 
     if (data.identificacion) {
         data.identificacion= data.identificacion;

@@ -32,7 +32,6 @@ const crearOperador = async (req, res = response) => {
 
     const nombreOperador = req.body.nombre;
     const OperadoresDB = await Operador.findOne({nombre:nombreOperador});
-    console.log(nombreOperador);
     if (OperadoresDB) {
         return res.status(400).json({
             msg: `El Operador ${OperadoresDB},ya existe`
@@ -61,7 +60,6 @@ const actualizarOperador = async (req, res = response) => {
 
 //Borrar Operadores -estado: false
 const borrarOperador = async (req, res = response) => {
-    console.log('borrar');
     const { id } = req.params;
     const OperadoresBorrada = await Operador.findByIdAndRemove(id);
     res.json(OperadoresBorrada);

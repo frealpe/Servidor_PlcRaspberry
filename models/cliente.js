@@ -20,9 +20,7 @@ const ClienteSchema = Schema({
 
     correo: {
         type: String,      
-    } 
-
-
+    }, 
 
 });
 
