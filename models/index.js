@@ -10,6 +10,7 @@ const LaborDiaria = require("./laboresdiarias");
 const Siembra = require("./siembra");
 const Riego = require("./riego");
 const Plagas = require("./plagas");
+const Muestra = require("./muestra");
 
 module.exports = {
   Role,
@@ -23,5 +24,6 @@ module.exports = {
   LaborDiaria,
   Siembra,
   Riego,
-  Plagas
+  Plagas,
+  Muestra
 };
