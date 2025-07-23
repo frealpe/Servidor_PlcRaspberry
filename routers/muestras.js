@@ -19,10 +19,10 @@ router.get('/:id', obtenerMuestraPorId);
 
 // Crear una nueva muestra
 router.post('/', [
-  check('proyecto', 'El ID del proyecto es obligatorio').not().isEmpty(),
-  check('proyecto', 'El ID del proyecto debe ser válido').isMongoId(),
-  check('geoInstalacion', 'La geoInstalacion es obligatoria').not().isEmpty(),
-  check('numeromuestra', 'El número de muestra es obligatorio').not().isEmpty(),
+  // check('proyecto', 'El ID del proyecto es obligatorio').not().isEmpty(),
+  // check('proyecto', 'El ID del proyecto debe ser válido').isMongoId(),
+  // check('geoInstalacion', 'La geoInstalacion es obligatoria').not().isEmpty(),
+  // check('idArbol').custom(idArbol),
   validarCampos,
 ], crearMuestra);
 

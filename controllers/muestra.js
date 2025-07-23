@@ -1,11 +1,12 @@
 const { response } = require("express");
-const { Muestra } = require("../models");
+const { Muestra,Proyecto } = require("../models");
 const mongoose = require("mongoose");
 
 // Crear nuevo registro de muestra
 const crearMuestra = async (req, res = response) => {
+  
   try {
-    const { proyecto, geoInstalacion, numeromuestra } = req.body;
+    const { proyecto, geoInstalacion, idArbol } = req.body;
 
     // Verificar que el proyecto sea un ObjectId válido
     if (!mongoose.Types.ObjectId.isValid(proyecto)) {
@@ -13,16 +14,22 @@ const crearMuestra = async (req, res = response) => {
         msg: 'ID de proyecto no válido'
       });
     }
-
-    // Crear nueva muestra
+    const proyectos = await Proyecto.findById(proyecto);
+    if (!proyectos) {
+      return res.status(404).json({
+        ok: false,
+        msg: 'No se encontró un proyecto con ese ID.',
+      });
+    }
+    // // Crear nueva muestra 
     const muestra = new Muestra({
       proyecto,
       geoInstalacion,
-      numeromuestra
+      idArbol
     });
 
-    // Guardar en BD
-    await muestra.save();
+     // // Guardar en BD
+    await muestra.save(); 
 
     res.status(201).json({
       msg: 'Muestra creada correctamente',
@@ -41,7 +48,7 @@ const crearMuestra = async (req, res = response) => {
 // Obtener todas las muestras
 const obtenerMuestras = async (req, res = response) => {
   try {
-    const { limite = 10, desde = 0 } = req.query;
+    const { limite = 100, desde = 0 } = req.query;
     const query = { estado: true };
 
     const [total, muestras] = await Promise.all([

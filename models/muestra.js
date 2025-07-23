@@ -12,9 +12,10 @@ const MuestraSchema = Schema({
     required: true, 
   },
       
-  numeromuestra: {
+  idArbol: {
     type: String,  
     required: true, 
+    unique: true
   },
 
   estado: {

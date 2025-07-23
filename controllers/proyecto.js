@@ -27,7 +27,7 @@ const obtenerProyecto = async (req, res = response) => {
 const crearProyecto = async (req, res = response) => {
        
     const Piloto = req.body.idPiloto; 
-    console.log("Piloto",Piloto);   
+    // console.log("Piloto",Piloto);   
     try{
         const ProyectoDB = await Proyecto.findOne({idPiloto:Piloto});
         if (ProyectoDB) {
@@ -44,9 +44,10 @@ const crearProyecto = async (req, res = response) => {
             estado: req.body.estado,
             numeroplantulas: req.body.numeroplantulas,
             fechacreado: req.body.fechacreado,  
+            geoInstalacion:req.body.geoInstalacion,
             
         }
-        console.log("Datos a Grabar",data);    
+        // console.log("Datos a Grabar",data);    
         const Proyectos = new Proyecto(data);
         await Proyectos.save();
         res.status(201).json(Proyectos); 
