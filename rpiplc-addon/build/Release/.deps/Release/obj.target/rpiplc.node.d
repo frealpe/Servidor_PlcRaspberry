@@ -1,0 +1,1 @@
+cmd_Release/obj.target/rpiplc.node := g++ -o Release/obj.target/rpiplc.node -shared -pthread -rdynamic  -Wl,-soname=rpiplc.node -Wl,--start-group Release/obj.target/rpiplc/rpiplc_wrapper.o -Wl,--end-group -lrpiplc
