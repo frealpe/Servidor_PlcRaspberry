@@ -1,7 +1,7 @@
 // mqttConectar.js
 const mqtt = require("mqtt");
 const { config } = require("dotenv");
-const { procesarPrompt } = require("../controllers/procesarPrompt"); // asegúrate de que el archivo se llama así
+const { procesarPrompt } = require("../controllers/plcControllerAi"); // asegúrate de que el archivo se llama así
 
 config();
 
