@@ -1,5 +1,7 @@
-// Mapeo de salidas (Q0–Q23)
-export const  PINES = {
+// helpers.js
+
+// Mapeo de salidas digitales (Q0–Q23)
+const PINES = {
   "0": 20971532,
   "1": 20971531,
   "2": 20971535,
@@ -24,4 +26,27 @@ export const  PINES = {
   "21": 21037060,
   "22": 20971524,
   "23": 20971523,
+};
+
+// Mapeo de entradas analógicas (ADC)
+const ADC_CHANNELS = {
+  0: 7,   // I0_7
+  1: 8,   // I0_8
+  2: 9,   // I0_9
+  3: 10,  // A10
+  4: 11,  // A11
+  5: 12,  // A12
+};
+
+// Mapeo de salidas PWM
+const PWM_CHANNELS = {
+  0: 0,
+  1: 1,
+  2: 2,
+};
+
+module.exports = {
+  PINES,
+  ADC_CHANNELS,
+  PWM_CHANNELS,
 };

@@ -1,7 +1,8 @@
 const mqtt = require('mqtt');
 //////////////////////////////////////////////////////////////////////
 // Configuración del broker
-const brokerUrl = 'mqtt://10.233.106.180:1883';
+//const brokerUrl = 'mqtt://10.233.106.180:1883';
+const brokerUrl = 'mqtt://localhost:1883';
 const options = {
     username: 'plcuser',
     password: 'plc',
@@ -12,7 +13,7 @@ const options = {
 const mqttClient = mqtt.connect(brokerUrl, options);
 //////////////////////////////////////////////////////////////////////
 // Lista de topics a suscribirse (quitando 'Plc/Ia')
-const topics = ['Plc/Adc', 'Plc/Pwm', 'Plc/Timer', 'Plc/Setpoint','Plc/Resp'];
+const topics = ['Plc/Pwm', 'Plc/Timer', 'Plc/Setpoint','Plc/Resp'];
 //////////////////////////////////////////////////////////////////////
 // Buffer para almacenar los últimos N mensajes por topic
 const MAX_MENSAJES = 1000;

@@ -1,7 +1,7 @@
 // mqttConectar.js
 const mqtt = require("mqtt");
 const { config } = require("dotenv");
-const { procesarPromptIO } = require("../controllers/plcControllerAi"); // asegúrate de que el archivo se llama así
+const {procesarPromptIAdc } = require("../controllers/plcControllerAi"); // asegúrate de que el archivo se llama así
 
 config();
 
@@ -16,24 +16,23 @@ const options = {
 };
 
 const mqttClient = mqtt.connect(brokerUrl, options);
-
-function Ia() {
+function DatosOpc() {
   mqttClient.on("connect", () => {
     console.log("✅ Conectado al broker MQTT");
 
-    mqttClient.subscribe("Plc/Ia", { qos: 1 }, (err) => {
+    mqttClient.subscribe("Plc/Adc", { qos: 1 }, (err) => {
       if (err) console.error("❌ Error suscribiéndose a Plc/Ia:", err);
-      else console.log("📡 Suscrito a Plc/Ia");
+      else console.log("📡 Suscrito a Plc/Adc");
     });
   });
 
   mqttClient.on("message", async (topic, message) => {
-    if (topic === "Plc/Ia") {
+    if (topic === "Plc/Adc") {
       const msg = message.toString();
-      console.log("📥 Recibido de Plc/Ia:", msg);
+      console.log("📥 Recibido de Plc/Adc:", msg);
 
       try {
-        const resultado = await procesarPromptIO(msg);
+        const resultado = await procesarPromptIAdc(msg);
         console.log("⚙️ Resultado generado:", resultado);
 
         // 📡 Publicar la respuesta en otro topic
@@ -62,4 +61,4 @@ function publicarMQTT(topic, mensaje) {
   }
 }
 
-module.exports = { mqttClient, Ia, publicarMQTT };
+module.exports = { mqttClient, DatosOpc, publicarMQTT };
