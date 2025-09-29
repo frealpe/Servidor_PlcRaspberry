@@ -1,81 +1,97 @@
 // controllers/chatgptplc.js
 
 const { generarComandoPLC } = require("../services/gtpServices");
-const { escribirSalida, leerEntrada,leerADC, ejecutarADC } = require("../services/plcServices");
+const { escribirSalida, leerEntrada, leerADC, ejecutarADC, ejecutarControlPI } = require("../services/plcServices");
 
+/**
+ * Procesa prompts relacionados con Entradas/Salidas digitales
+ */
 const procesarPromptIO = async (prompt) => {
   try {
     if (!prompt) return { ok: false, msg: "El campo 'prompt' es obligatorio" };
 
-    console.log("📥 Prompt recibido:", prompt);
+    console.log("📥 Prompt recibido (IO):", prompt);
     const comando = await generarComandoPLC(prompt);
-    console.log("⚙️ Comando generado:", comando);
 
-    if (!comando) {
-      return { ok: true, comando: null, resultado: "GPT no devolvió comando válido" };
+    if (!comando || !comando.accion) {
+      return { ok: false, msg: "Comando inválido generado" };
     }
 
-    const partes = comando.split(" ");
-    const accion = partes[0];
-    let resultado;
+    console.log("⚙️ Comando generado (IO):", comando.accion);
 
-    if (accion === "SALIDA") {
-      if (partes.length < 3) resultado = "❌ Error: formato inválido en comando SALIDA";
-      else resultado = escribirSalida(partes[1], parseInt(partes[2], 10));
-    } 
-    else if (accion === "ENTRADA") {
-      if (partes.length < 2) resultado = "❌ Error: formato inválido en comando ENTRADA";
-      else resultado = leerEntrada(partes[1]);
-    } 
-    else resultado = `❓ Acción desconocida: ${accion}`;
+    let resultado = null;
+
+    if (comando.accion === "salida") {
+      resultado = await escribirSalida(comando.pin, comando.estado);
+    } else if (comando.accion === "entrada") {
+      resultado = await leerEntrada(comando.pin);
+    }
+
 
     return { ok: true, prompt, comando, resultado };
+
   } catch (error) {
-    console.error("❌ Error en procesarPrompt:", error.message);
+    console.error("❌ Error en procesarPromptIO:", error.message);
     return { ok: false, msg: "Error al procesar la consulta con GPT", error: error.message };
   }
 };
 
 
+/**
+ * Procesa prompts relacionados con el ADC
+ */
 const procesarPromptIAdc = async (prompt) => {
   try {
     if (!prompt) return { ok: false, msg: "El campo 'prompt' es obligatorio" };
 
-    console.log("📥 Prompt recibido:", prompt);
-
+    console.log("📥 Prompt recibido (ADC):", prompt);
     const comando = await generarComandoPLC(prompt);
-    console.log("⚙️ Comando generado:", comando);
-
-    if (!comando) {
-      return { ok: true, comando: null, resultado: "GPT no devolvió comando válido" };
+    console.log("⚙️ Comando generado (ADC):", comando);
+    if (!comando || !comando.accion) {
+      return { ok: false, msg: "Comando inválido generado" };
     }
 
-    const partes = comando.split(" ");
-    const accion = partes[0];
-    let resultado;
-
-    if (accion === "ADC") {
-      if (partes.length < 2) {
-        resultado = "❌ Error: formato inválido en comando ADC";
-      } else {
-        const canal = parseInt(partes[1], 10);
-        const intervalo = partes[2] ? parseInt(partes[2], 10) : 1000; // ms
-        const duracion = partes[3] ? parseInt(partes[3], 10) : 5000;   // ms
-
-        resultado = await ejecutarADC(canal, intervalo, duracion);
-      }
-    } else {
-      resultado = `❓ Acción desconocida: ${accion}`;
+    if (comando.accion === "adc") {
+        resultado = await ejecutarADC({canal:comando.canal, muestreo:comando.intervalo_ms, duracion:comando.duracion_ms});
     }
-
-    return { ok: true, prompt, comando, resultado };
+    return { ok: true,comando};
   } catch (error) {
     console.error("❌ Error en procesarPromptIAdc:", error.message);
     return { ok: false, msg: "Error al procesar la consulta con GPT", error: error.message };
   }
 };
 
+/*Prompt de Control*/ 
+const procesarPromptControl = async (prompt) => {
+  try {
+    if (!prompt) return { ok: false, msg: "El campo 'prompt' es obligatorio" };
+
+  //  console.log("📥 Prompt recibido (Control):", prompt);
+    const comando = await generarComandoPLC(prompt);
+    console.log("Comando generado (Control):", comando);
 
 
+    if (comando.accion === 'control') {
+//      console.log("Ejecutando control PI con:", comando);
+            resultado = await ejecutarControlPI({
+                canalAdc: comando.canalAdc,
+                canalPwm: comando.canalPwm,
+                setpoint_volt: comando.setpoint_volt,
+                tiempo_muestreo_ms: comando.tiempo_muestreo_ms,
+                tiempo_simulacion_ms: comando.tiempo_simulacion_ms
+            });
 
-module.exports = { procesarPromptIO,procesarPromptIAdc};
+    }
+
+    return { ok: true, comando };
+  } catch (error) {
+    console.error("❌ Error en procesarPromptControl:", error.message);
+    return { ok: false, msg: "Error al procesar el control con GPT", error: error.message };
+  }
+};
+
+module.exports = { 
+  procesarPromptIO, 
+  procesarPromptIAdc, 
+  procesarPromptControl 
+};

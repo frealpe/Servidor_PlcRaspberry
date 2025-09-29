@@ -1,13 +1,18 @@
+const { config } = require("dotenv");
 const mqtt = require('mqtt');
+
+config();
 //////////////////////////////////////////////////////////////////////
 // Configuración del broker
-//const brokerUrl = 'mqtt://10.233.106.180:1883';
-const brokerUrl = 'mqtt://localhost:1883';
+//const brokerUrl = 'mqtt://127.0.0.1:1883';
+//const brokerUrl = 'mqtt://localhost:1883';
+const brokerUrl = process.env.BROKER;
 const options = {
-    username: 'plcuser',
-    password: 'plc',
-    clientId: 'NodeClient_' + Math.random().toString(16).substr(2, 8)
+  username: process.env.MQTT_USER,    // también desde .env
+  password: process.env.MQTT_PASS,    // también desde .env
+  clientId: "NodeClient_" + Math.random().toString(16).substr(2, 8),
 };
+
 //////////////////////////////////////////////////////////////////////
 // Conectar al broker
 const mqttClient = mqtt.connect(brokerUrl, options);

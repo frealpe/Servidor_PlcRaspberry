@@ -1,10 +1,11 @@
 const { DataType } = require("node-opcua");
 const OpcClient = require("./OpcClient");
-
+const { config } = require("dotenv");
+config(); 
 class OpcService {
     constructor() {
         this.client = new OpcClient();
-        this.endpointUrl = "opc.tcp://10.233.106.180:4334/Plc/PlcOpcServer"; // 👉 Servidor en tu PC
+        this.endpointUrl = process.env.OPC_ENDPOINT; //
         this.connected = false;
     }
 
@@ -20,13 +21,11 @@ class OpcService {
     // ------------------------
     async readADC() {
         await this.connect();
-        const value = await this.client.readVariable("ns=1;s=ADC");
-        
+        const value = await this.client.readVariable("ns=1;s=ADC");        
         return { variable: "ADC", value };
     }
 
     async writeADC(value) {
-        console.log("Valor a escribir en OPC:", value);
         await this.connect();
         await this.client.writeVariable("ns=1;s=ADC", value, DataType.Double);
         return { variable: "ADC", value };

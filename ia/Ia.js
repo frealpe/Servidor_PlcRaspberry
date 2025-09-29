@@ -1,47 +1,70 @@
 // mqttConectar.js
 const mqtt = require("mqtt");
+const { procesarPromptIAdc, procesarPromptIO,procesarPromptControl } = require("../controllers/plcControllerAi");
 const { config } = require("dotenv");
-const { procesarPromptIO } = require("../controllers/plcControllerAi"); // asegúrate de que el archivo se llama así
 
 config();
 
-  const apiKey = process.env.BROKER_APIKEY;
-//////////////////////////////////////////////////////////////////////
-// Configuración del broker
-const brokerUrl = 'mqtt://10.233.106.180:1883';
+const brokerUrl = process.env.BROKER;
 const options = {
-    username: 'plcuser',
-    password: 'plc',
-    clientId: 'NodeClient_' + Math.random().toString(16).substr(2, 8)
+  username: process.env.MQTT_USER,    // también desde .env
+  password: process.env.MQTT_PASS,    // también desde .env
+  clientId: "NodeClient_" + Math.random().toString(16).substr(2, 8),
 };
 
 const mqttClient = mqtt.connect(brokerUrl, options);
 
-function Ia() {
+// 🔹 Definir los tópicos en un solo lugar
+const TOPICS = ["Plc/Adc", "Plc/Ia", "Plc/Control"];
+
+// 🔹 Inicializar IA
+function IA() {
   mqttClient.on("connect", () => {
     console.log("✅ Conectado al broker MQTT");
 
-    mqttClient.subscribe("Plc/Ia", { qos: 1 }, (err) => {
-      if (err) console.error("❌ Error suscribiéndose a Plc/Ia:", err);
-      else console.log("📡 Suscrito a Plc/Ia");
+    // Suscribirse a todos los tópicos definidos en TOPICS
+    TOPICS.forEach((topic) => {
+      mqttClient.subscribe(topic, { qos: 1 }, (err) => {
+        if (err) console.error(`❌ Error suscribiéndose a ${topic}:`, err);
+        else console.log(`📡 Suscrito a ${topic}`);
+      });
     });
   });
 
   mqttClient.on("message", async (topic, message) => {
-    if (topic === "Plc/Ia") {
-      const msg = message.toString();
-      console.log("📥 Recibido de Plc/Ia:", msg);
+    const msg = message.toString();
+    console.log(`📥 Recibido de ${topic}:`, msg);
 
-      try {
-        const resultado = await procesarPromptIO(msg);
-        console.log("⚙️ Resultado generado:", resultado);
+    try {
+      let resultado;
 
-        // 📡 Publicar la respuesta en otro topic
-        publicarMQTT("Plc/Respuesta", JSON.stringify(resultado));
+      switch (topic) {
+        case "Plc/Adc":
+          resultado = await procesarPromptIAdc(msg);
+          break;
 
-      } catch (err) {
-        console.error("❌ Error procesando mensaje MQTT:", err.message);
+        case "Plc/Ia":
+          resultado = await procesarPromptIO(msg);
+          break;
+
+        case "Plc/Control":
+          resultado = await procesarPromptControl(msg);
+          break;
+
+        default:
+          console.warn(`⚠️ Tópico ${topic} no tiene un procesador definido`);
+          break;
       }
+
+      if (resultado) {
+        console.log("⚙️ Resultado generado:", resultado);
+        publicarMQTT("Plc/Respuesta", JSON.stringify(resultado));
+      }
+
+
+
+    } catch (err) {
+      console.error(`❌ Error procesando mensaje de ${topic}:`, err.message);
     }
   });
 
@@ -50,7 +73,7 @@ function Ia() {
   });
 }
 
-// Función para publicar mensajes
+// 🔹 Función para publicar mensajes
 function publicarMQTT(topic, mensaje) {
   if (mqttClient && mqttClient.connected) {
     mqttClient.publish(topic, mensaje, { qos: 1 }, (err) => {
@@ -62,4 +85,5 @@ function publicarMQTT(topic, mensaje) {
   }
 }
 
-module.exports = { mqttClient, Ia, publicarMQTT };
+
+module.exports = { mqttClient, IA, publicarMQTT, TOPICS };

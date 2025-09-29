@@ -48,7 +48,7 @@ class OpcClient {
 
     async ensureConnection() {
         if (!this.session) {
-            console.log("⚠️ Sesión OPC UA no activa. Reconectando...");
+            console.log("Sesión OPC UA no activa. Reconectando...");
             if (this.endpointUrl) {
                 await this.connect(this.endpointUrl);
             } else {
@@ -66,7 +66,7 @@ class OpcClient {
             });
             return dataValue.value.value;
         } catch (err) {
-            console.error(`❌ Error leyendo variable ${nodeId}:`, err.message);
+            console.error(`Error leyendo variable ${nodeId}:`, err.message);
             return null;
         }
     }
@@ -84,9 +84,9 @@ class OpcClient {
                     }
                 }
             });
-            console.log(`📤 Valor escrito en ${nodeId}:`, value);
+            console.log(`Valor escrito en ${nodeId}:`, value);
         } catch (err) {
-            console.error(`❌ Error escribiendo variable ${nodeId}:`, err.message);
+            console.error(`Error escribiendo variable ${nodeId}:`, err.message);
         }
     }
 
@@ -99,7 +99,7 @@ class OpcClient {
             await this.client.disconnect();
             console.log("⚡ Cliente OPC UA desconectado");
         } catch (err) {
-            console.error("❌ Error desconectando OPC UA:", err.message);
+            console.error("Error desconectando OPC UA:", err.message);
         }
     }
 }

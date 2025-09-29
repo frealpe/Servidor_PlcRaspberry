@@ -1,13 +1,14 @@
 const OpcClient = require('../services/OpcClient');
 const { mqttClient } = require('../mqtt/conectMqtt'); // Asegúrate de importar tu cliente MQTT
-
+const { config } = require("dotenv");
+config(); 
 const initOpcClient = async () => {
     try {
         console.log("Iniciando cliente OPC UA...");
         const opcClient = new OpcClient();
 
         // 👉 Aquí colocas la IP de tu PC (servidor OPC UA)
-        const endpointUrl = "opc.tcp://10.233.106.180:4334/Plc/PlcOpcServer";
+        this.endpointUrl = process.env.OPC_ENDPOINT; //
         console.log("Conectando a:", endpointUrl);
 
         await opcClient.connect(endpointUrl);
