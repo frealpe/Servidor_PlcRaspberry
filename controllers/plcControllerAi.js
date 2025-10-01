@@ -1,8 +1,9 @@
 // controllers/chatgptplc.js
 
 const { generarComandoPLC } = require("../services/gtpServices");
-const { escribirSalida, leerEntrada, leerADC, ejecutarADC, ejecutarControlPI } = require("../services/plcServices");
-
+//const {  escribirSalida, leerEntrada,ejecutarADC, ejecutarControlPI} = require("../services/plcServicesSimulado");
+const { escribirSalida, leerEntrada,ejecutarADC, ejecutarControlPI } = require("../services/plcServices");
+//const { escribirSalida, leerEntrada, leerADC, ejecutarADC, ejecutarControlPI } = require("../services/plcServicesSimulado");
 /**
  * Procesa prompts relacionados con Entradas/Salidas digitales
  */
@@ -10,14 +11,14 @@ const procesarPromptIO = async (prompt) => {
   try {
     if (!prompt) return { ok: false, msg: "El campo 'prompt' es obligatorio" };
 
-    console.log("📥 Prompt recibido (IO):", prompt);
     const comando = await generarComandoPLC(prompt);
+   // console.log("📥 Comando generado recibido (IO):", comando);
 
     if (!comando || !comando.accion) {
       return { ok: false, msg: "Comando inválido generado" };
     }
 
-    console.log("⚙️ Comando generado (IO):", comando.accion);
+   // console.log("⚙️ Comando generado (IO):", comando.accion);
 
     let resultado = null;
 
@@ -28,25 +29,21 @@ const procesarPromptIO = async (prompt) => {
     }
 
 
-    return { ok: true, prompt, comando, resultado };
+    return { ok: true,resultado };
 
   } catch (error) {
     console.error("❌ Error en procesarPromptIO:", error.message);
     return { ok: false, msg: "Error al procesar la consulta con GPT", error: error.message };
   }
 };
-
-
 /**
  * Procesa prompts relacionados con el ADC
  */
 const procesarPromptIAdc = async (prompt) => {
   try {
     if (!prompt) return { ok: false, msg: "El campo 'prompt' es obligatorio" };
-
-    console.log("📥 Prompt recibido (ADC):", prompt);
     const comando = await generarComandoPLC(prompt);
-    console.log("⚙️ Comando generado (ADC):", comando);
+   // console.log("⚙️ Comando generado (ADC):", comando);
     if (!comando || !comando.accion) {
       return { ok: false, msg: "Comando inválido generado" };
     }
@@ -54,7 +51,7 @@ const procesarPromptIAdc = async (prompt) => {
     if (comando.accion === "adc") {
         resultado = await ejecutarADC({canal:comando.canal, muestreo:comando.intervalo_ms, duracion:comando.duracion_ms});
     }
-    return { ok: true,comando};
+    return { ok: true,resultado};
   } catch (error) {
     console.error("❌ Error en procesarPromptIAdc:", error.message);
     return { ok: false, msg: "Error al procesar la consulta con GPT", error: error.message };
@@ -68,7 +65,7 @@ const procesarPromptControl = async (prompt) => {
 
   //  console.log("📥 Prompt recibido (Control):", prompt);
     const comando = await generarComandoPLC(prompt);
-    console.log("Comando generado (Control):", comando);
+   // console.log("Comando generado (Control):", comando);
 
 
     if (comando.accion === 'control') {
@@ -83,7 +80,23 @@ const procesarPromptControl = async (prompt) => {
 
     }
 
-    return { ok: true, comando };
+    return { ok: true, resultado };
+  } catch (error) {
+    console.error("❌ Error en procesarPromptControl:", error.message);
+    return { ok: false, msg: "Error al procesar el control con GPT", error: error.message };
+  }
+};
+
+
+const procesarPromptSupervisor = async (prompt) => {
+  try {
+    if (!prompt) return { ok: false, msg: "El campo 'prompt' es obligatorio" };
+
+  //  console.log("📥 Prompt recibido (Control):", prompt);
+   // const comando = await generarComandoPLC(prompt);
+    //console.log("Comando generado (Control):", comando);
+
+    return { ok: true, comando:"Informe generando" };
   } catch (error) {
     console.error("❌ Error en procesarPromptControl:", error.message);
     return { ok: false, msg: "Error al procesar el control con GPT", error: error.message };
@@ -93,5 +106,6 @@ const procesarPromptControl = async (prompt) => {
 module.exports = { 
   procesarPromptIO, 
   procesarPromptIAdc, 
-  procesarPromptControl 
+  procesarPromptControl,
+  procesarPromptSupervisor 
 };

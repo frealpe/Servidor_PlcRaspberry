@@ -1,26 +1,31 @@
-// plcService.js
-const rpiplc = require("../rpiplc-addon/build/Release/rpiplc");
+//const rpiplc = require("../rpiplc-addon/build/Release/rpiplc");
 const { PINES } = require("./helpers");
 
 // =======================
 // Escritura digital
 // =======================
-const escribirSalida = (pin, valor) => {
+const escribirSalida = ({pin, valor}) => {
   if (pin !== undefined && (valor === 0 || valor === 1)) {
-    rpiplc.writeDigital(PINES[pin], valor);
-    console.log(`✅ Salida ${pin} configurada en ${valor}`);
-    return `✅ Salida ${pin} configurada en ${valor}`;
+    // Simulación: randomiza si la escritura fue "exitosa" o no
+    const simulated = Math.random() > 0.1; // 90% éxito, 10% fallo
+    if (simulated) {
+      console.log(`✅ (Simulado) Salida ${pin} configurada en ${valor}`);
+      return `✅ (Simulado) Salida ${pin} configurada en ${valor}`;
+    } else {
+      console.log(`⚠️ (Simulado) Error al configurar salida ${pin}`);
+      return `⚠️ (Simulado) Error al configurar salida ${pin}`;
+    }
   }
   return `⚠️ Pin ${pin} no definido o valor inválido`;
 };
-
 // =======================
 // Lectura digital
 // =======================
 const leerEntrada = (pin) => {
   if (pin !== undefined) {
-    const valor = rpiplc.readDigital(PINES[pin]);
-    //console.log(`Entrada ${pin} leída: ${valor}`);
+    // Simulación: genera 0 o 1 de forma aleatoria
+    const valor = Math.random() > 0.5 ? 1 : 0;
+    console.log(`(Simulado) Entrada ${pin} leída: ${valor}`);
     return valor;
   }
   return `⚠️ Pin ${pin} no definido en la tabla`;
@@ -31,7 +36,9 @@ const leerEntrada = (pin) => {
 // =======================
 const leerADC = async (canal) => {
   if (canal !== undefined) {
-    const adcValue = rpiplc.readADC(canal); // lectura real del ADC
+    // Simulación de valor ADC con número aleatorio de 0 a 1023
+    const adcValue = Math.floor(Math.random() * 1024);
+    //console.log(adcValue);
     return adcValue;
   }
   return null;
@@ -40,10 +47,10 @@ const leerADC = async (canal) => {
 // =======================
 // Lectura periódica de ADC
 // =======================
-const ejecutarADC = async (canal, muestreo, duracion) => {
+const ejecutarADC = async ({canal, muestreo, duracion}) => {
   const fin = Date.now() + duracion;
   const resultados = [];
-
+  //console.log(`Iniciando lectura ADC en canal ${canal} cada ${muestreo}ms por ${duracion}ms`);
   while (Date.now() < fin) {
     const valor = await leerADC(canal);
     resultados.push(valor);
@@ -58,9 +65,8 @@ const ejecutarADC = async (canal, muestreo, duracion) => {
 // =======================
 const escribirPWM = (canal, duty) => {
   if (canal !== undefined && duty >= 0 && duty <= 4095) {
-    rpiplc.writePWM(canal, Math.round(duty));
-    // console.log(`PWM[${canal}] configurado en duty ${Math.round(duty)}`);
-    return Math.round(duty);
+    const simulatedDuty = Math.floor(Math.random() * 4096);
+    return simulatedDuty;
   }
   return `⚠️ Canal PWM ${canal} no definido o duty inválido`;
 };
@@ -121,6 +127,7 @@ const ejecutarControlPI = async ({ canalAdc, canalPwm, setpoint_volt, tiempo_mue
     Datos: resultados
   };
 };
+
 
 
 // =======================
