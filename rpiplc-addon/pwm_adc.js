@@ -1,29 +1,34 @@
-// test_rpiplc.js
 const rpiplc = require('./build/Release/rpiplc'); // Ajusta ruta si es diferente
 
-console.log('=== PRUEBA DIGITAL ===');
-const pinDigital = 0; // Cambia según tu modelo
+const canalADC = 0;   // Canal ADC que quieres leer
+const canalPWM = 0;   // Canal PWM a controlar
+const duracionSegundos = 20;
+const intervaloMs = 100;
 
-console.log(`Encendiendo pin ${pinDigital}...`);
-let res = rpiplc.writeDigital(pinDigital, 1);
-console.log('Resultado WriteDigital:', res);
+let tiempoTranscurrido = 0;
 
-console.log(`Leyendo pin ${pinDigital}...`);
-res = rpiplc.readDigital(pinDigital);
-console.log('Resultado ReadDigital:', res);
+console.log(`📡 Leyendo ADC${canalADC} y escribiendo en PWM${canalPWM} (12-bit) durante ${duracionSegundos} segundos...`);
 
-console.log('\n=== PRUEBA ADC ===');
-const adcValue = rpiplc.readADC();
-if (adcValue < 0) {
-    console.log('Error leyendo ADC. ¿Tienes entradas analógicas conectadas?');
-} else {
-    console.log('Valor ADC [0]:', adcValue);
-}
+const interval = setInterval(() => {
+    let valorADC = rpiplc.readADC(canalADC); // Leer ADC 12-bit (0-4095)
 
-console.log('\n=== PRUEBA PWM ===');
-const pwmDuty = 128; // 0-255
-console.log(`Escribiendo PWM con duty ${pwmDuty}...`);
-res = rpiplc.writePWM(pwmDuty);
-console.log('Resultado WritePWM:', res);
+    if (valorADC < 0) {
+        console.log('Error leyendo ADC. Revisa conexiones.');
+        valorADC = 0;
+    }
 
-console.log('Lectura PWM no disponible directamente, verifica salida con osciloscopio o LED.');
+    // Directamente pasar el valor del ADC al PWM (12-bit)
+    const valorPWM = valorADC;
+
+    // Escribir PWM
+    rpiplc.writePWM(canalPWM, valorPWM);
+
+    console.log(`t=${tiempoTranscurrido.toFixed(2)}s | ADC${canalADC}=${valorADC} -> PWM${canalPWM}=${valorPWM}`);
+
+    tiempoTranscurrido += intervaloMs / 1000;
+
+    if (tiempoTranscurrido >= duracionSegundos) {
+        clearInterval(interval);
+        console.log('✅ Proceso finalizado.');
+    }
+}, intervaloMs);

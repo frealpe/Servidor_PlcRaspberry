@@ -25,4 +25,4 @@ function IA() {
   });
 }
 
-module.exports = {IA};
+module.exports = {IA}; 

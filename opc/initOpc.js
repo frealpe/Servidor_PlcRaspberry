@@ -7,29 +7,29 @@ const initOpcClient = async () => {
         console.log("Iniciando cliente OPC UA...");
         const opcClient = new OpcClient();
 
-        // 👉 Aquí colocas la IP de tu PC (servidor OPC UA)
-        this.endpointUrl = process.env.OPC_ENDPOINT; //
+        // 👉 Tomar el endpoint del .env
+        const endpointUrl = process.env.OPC_ENDPOINT;
         console.log("Conectando a:", endpointUrl);
 
         await opcClient.connect(endpointUrl);
-        console.log("Cliente OPC UA conectado");
+        console.log("✅ Cliente OPC UA conectado");
 
         // Iniciar lectura continua
         await startOpcReading(opcClient);
 
         return opcClient;
     } catch (err) {
-        console.error('Error inicializando OPC UA en Raspberry:', err);
+        console.error("❌ Error inicializando OPC UA en Raspberry:", err);
         throw err;
     }
 };
 
-const startOpcReading = async (opcClient) => {
+const startOpcReading = async (opcClient) => { 
     if (!opcClient) return;
 
     // Nodo que quieres leer
     const nodoADC = "ns=1;s=ADC";
-
+   
     // Callback que se ejecuta cada vez que cambia el valor
     const callback = (valor) => {
         console.log("Valor ADC recibido:", valor);

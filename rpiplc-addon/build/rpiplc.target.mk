@@ -7,9 +7,11 @@ DEFS_Debug := \
 	'-DUSING_UV_SHARED=1' \
 	'-DUSING_V8_SHARED=1' \
 	'-DV8_DEPRECATION_WARNINGS=1' \
+	'-DV8_DEPRECATION_WARNINGS' \
+	'-DV8_IMMINENT_DEPRECATION_WARNINGS' \
 	'-D_GLIBCXX_USE_CXX11_ABI=1' \
-	'-D_FILE_OFFSET_BITS=64' \
 	'-D_LARGEFILE_SOURCE' \
+	'-D_FILE_OFFSET_BITS=64' \
 	'-D__STDC_FORMAT_MACROS' \
 	'-DOPENSSL_NO_PINSHARED' \
 	'-DOPENSSL_THREADS' \
@@ -18,7 +20,8 @@ DEFS_Debug := \
 	'-DRPIPLC_58' \
 	'-DBUILDING_NODE_EXTENSION' \
 	'-DDEBUG' \
-	'-D_DEBUG'
+	'-D_DEBUG' \
+	'-DV8_ENABLE_CHECKS'
 
 # Flags passed to all source files.
 CFLAGS_Debug := \
@@ -43,14 +46,14 @@ CFLAGS_CC_Debug := \
 	-fexceptions
 
 INCS_Debug := \
-	-I/root/.cache/node-gyp/20.19.5/include/node \
-	-I/root/.cache/node-gyp/20.19.5/src \
-	-I/root/.cache/node-gyp/20.19.5/deps/openssl/config \
-	-I/root/.cache/node-gyp/20.19.5/deps/openssl/openssl/include \
-	-I/root/.cache/node-gyp/20.19.5/deps/uv/include \
-	-I/root/.cache/node-gyp/20.19.5/deps/zlib \
-	-I/root/.cache/node-gyp/20.19.5/deps/v8/include \
-	-I/home/rpiplc-addon/node_modules/node-addon-api \
+	-I/home/pi/.cache/node-gyp/18.20.3/include/node \
+	-I/home/pi/.cache/node-gyp/18.20.3/src \
+	-I/home/pi/.cache/node-gyp/18.20.3/deps/openssl/config \
+	-I/home/pi/.cache/node-gyp/18.20.3/deps/openssl/openssl/include \
+	-I/home/pi/.cache/node-gyp/18.20.3/deps/uv/include \
+	-I/home/pi/.cache/node-gyp/18.20.3/deps/zlib \
+	-I/home/pi/.cache/node-gyp/18.20.3/deps/v8/include \
+	-I$(srcdir)/node_modules/node-addon-api \
 	-I/usr/local/include/librpiplc
 
 DEFS_Release := \
@@ -58,9 +61,11 @@ DEFS_Release := \
 	'-DUSING_UV_SHARED=1' \
 	'-DUSING_V8_SHARED=1' \
 	'-DV8_DEPRECATION_WARNINGS=1' \
+	'-DV8_DEPRECATION_WARNINGS' \
+	'-DV8_IMMINENT_DEPRECATION_WARNINGS' \
 	'-D_GLIBCXX_USE_CXX11_ABI=1' \
-	'-D_FILE_OFFSET_BITS=64' \
 	'-D_LARGEFILE_SOURCE' \
+	'-D_FILE_OFFSET_BITS=64' \
 	'-D__STDC_FORMAT_MACROS' \
 	'-DOPENSSL_NO_PINSHARED' \
 	'-DOPENSSL_THREADS' \
@@ -92,14 +97,14 @@ CFLAGS_CC_Release := \
 	-fexceptions
 
 INCS_Release := \
-	-I/root/.cache/node-gyp/20.19.5/include/node \
-	-I/root/.cache/node-gyp/20.19.5/src \
-	-I/root/.cache/node-gyp/20.19.5/deps/openssl/config \
-	-I/root/.cache/node-gyp/20.19.5/deps/openssl/openssl/include \
-	-I/root/.cache/node-gyp/20.19.5/deps/uv/include \
-	-I/root/.cache/node-gyp/20.19.5/deps/zlib \
-	-I/root/.cache/node-gyp/20.19.5/deps/v8/include \
-	-I/home/rpiplc-addon/node_modules/node-addon-api \
+	-I/home/pi/.cache/node-gyp/18.20.3/include/node \
+	-I/home/pi/.cache/node-gyp/18.20.3/src \
+	-I/home/pi/.cache/node-gyp/18.20.3/deps/openssl/config \
+	-I/home/pi/.cache/node-gyp/18.20.3/deps/openssl/openssl/include \
+	-I/home/pi/.cache/node-gyp/18.20.3/deps/uv/include \
+	-I/home/pi/.cache/node-gyp/18.20.3/deps/zlib \
+	-I/home/pi/.cache/node-gyp/18.20.3/deps/v8/include \
+	-I$(srcdir)/node_modules/node-addon-api \
 	-I/usr/local/include/librpiplc
 
 OBJS := \

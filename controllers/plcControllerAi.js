@@ -1,24 +1,20 @@
 // controllers/chatgptplc.js
 
+const { datalogger } = require("../services/datalogger.js");
+const { saveEmbedding } = require("../services/embedding.js");
 const { generarComandoPLC } = require("../services/gtpServices");
-//const {  escribirSalida, leerEntrada,ejecutarADC, ejecutarControlPI} = require("../services/plcServicesSimulado");
-const { escribirSalida, leerEntrada,ejecutarADC, ejecutarControlPI } = require("../services/plcServices");
-//const { escribirSalida, leerEntrada, leerADC, ejecutarADC, ejecutarControlPI } = require("../services/plcServicesSimulado");
-/**
- * Procesa prompts relacionados con Entradas/Salidas digitales
- */
+//const { escribirSalida, leerEntrada, ejecutarADC, ejecutarControlPI } = require("../services/plcServicesSimulado");
+const { escribirSalida, leerEntrada, ejecutarADC, ejecutarControlPI } = require("../services/plcServices");
 const procesarPromptIO = async (prompt) => {
   try {
     if (!prompt) return { ok: false, msg: "El campo 'prompt' es obligatorio" };
 
     const comando = await generarComandoPLC(prompt);
-   // console.log("📥 Comando generado recibido (IO):", comando);
+    // console.log("📥 Comando generado recibido (IO):", comando);
 
     if (!comando || !comando.accion) {
       return { ok: false, msg: "Comando inválido generado" };
     }
-
-   // console.log("⚙️ Comando generado (IO):", comando.accion);
 
     let resultado = null;
 
@@ -28,78 +24,84 @@ const procesarPromptIO = async (prompt) => {
       resultado = await leerEntrada(comando.pin);
     }
 
-
-    return { ok: true,resultado };
+    return { ok: true, resultado };
 
   } catch (error) {
     console.error("❌ Error en procesarPromptIO:", error.message);
     return { ok: false, msg: "Error al procesar la consulta con GPT", error: error.message };
   }
 };
-/**
- * Procesa prompts relacionados con el ADC
- */
+
 const procesarPromptIAdc = async (prompt) => {
   try {
     if (!prompt) return { ok: false, msg: "El campo 'prompt' es obligatorio" };
+
     const comando = await generarComandoPLC(prompt);
-   // console.log("⚙️ Comando generado (ADC):", comando);
     if (!comando || !comando.accion) {
       return { ok: false, msg: "Comando inválido generado" };
     }
 
+    let resultado = null;
+
     if (comando.accion === "adc") {
-        resultado = await ejecutarADC({canal:comando.canal, muestreo:comando.intervalo_ms, duracion:comando.duracion_ms});
+      resultado = await ejecutarADC({
+        canal: comando.canal,
+        muestreo: comando.intervalo_ms,
+        duracion: comando.duracion_ms
+      });
     }
-    return { ok: true,resultado};
+
+    return { ok: true, resultado };
+
   } catch (error) {
     console.error("❌ Error en procesarPromptIAdc:", error.message);
     return { ok: false, msg: "Error al procesar la consulta con GPT", error: error.message };
   }
 };
 
-/*Prompt de Control*/ 
 const procesarPromptControl = async (prompt) => {
   try {
     if (!prompt) return { ok: false, msg: "El campo 'prompt' es obligatorio" };
 
-  //  console.log("📥 Prompt recibido (Control):", prompt);
     const comando = await generarComandoPLC(prompt);
-   // console.log("Comando generado (Control):", comando);
+    if (!comando || !comando.accion) {
+      return { ok: false, msg: "Comando inválido generado" };
+    }
 
+    let resultados = null;
 
     if (comando.accion === 'control') {
-//      console.log("Ejecutando control PI con:", comando);
-            resultado = await ejecutarControlPI({
-                canalAdc: comando.canalAdc,
-                canalPwm: comando.canalPwm,
-                setpoint_volt: comando.setpoint_volt,
-                tiempo_muestreo_ms: comando.tiempo_muestreo_ms,
-                tiempo_simulacion_ms: comando.tiempo_simulacion_ms
-            });
+      const { resultados: res, Prueba } = await ejecutarControlPI({
+        canalAdc: comando.canalAdc,
+        canalPwm: comando.canalPwm,
+        setpoint_volt: comando.setpoint_volt,
+        tiempo_muestreo_ms: comando.tiempo_muestreo_ms,
+        tiempo_simulacion_ms: comando.tiempo_simulacion_ms
+      });
+
+      resultados = res;
+      datalogger({ resultados, Prueba });
+      //saveEmbedding({ prompt, resultados, Prueba });
 
     }
 
-    return { ok: true, resultado };
+    return { ok: true, resultados };
+
   } catch (error) {
     console.error("❌ Error en procesarPromptControl:", error.message);
     return { ok: false, msg: "Error al procesar el control con GPT", error: error.message };
   }
 };
 
-
 const procesarPromptSupervisor = async (prompt) => {
   try {
     if (!prompt) return { ok: false, msg: "El campo 'prompt' es obligatorio" };
 
-  //  console.log("📥 Prompt recibido (Control):", prompt);
-   // const comando = await generarComandoPLC(prompt);
-    //console.log("Comando generado (Control):", comando);
+    return { ok: true, comando: "Informe generando" };
 
-    return { ok: true, comando:"Informe generando" };
   } catch (error) {
-    console.error("❌ Error en procesarPromptControl:", error.message);
-    return { ok: false, msg: "Error al procesar el control con GPT", error: error.message };
+    console.error("❌ Error en procesarPromptSupervisor:", error.message);
+    return { ok: false, msg: "Error al procesar el supervisor con GPT", error: error.message };
   }
 };
 

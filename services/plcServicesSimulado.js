@@ -1,8 +1,8 @@
-//const rpiplc = require("../rpiplc-addon/build/Release/rpiplc");
-const { PINES } = require("./helpers");
-
 // =======================
 // Escritura digital
+
+const Sockets = require("../lib/socket");
+
 // =======================
 const escribirSalida = ({pin, valor}) => {
   if (pin !== undefined && (valor === 0 || valor === 1)) {
@@ -20,7 +20,7 @@ const escribirSalida = ({pin, valor}) => {
 };
 // =======================
 // Lectura digital
-// =======================
+// ======================= 
 const leerEntrada = (pin) => {
   if (pin !== undefined) {
     // Simulación: genera 0 o 1 de forma aleatoria
@@ -31,34 +31,65 @@ const leerEntrada = (pin) => {
   return `⚠️ Pin ${pin} no definido en la tabla`;
 };
 
+
 // =======================
 // Lectura de ADC
 // =======================
-const leerADC = async (canal) => {
+const leerADC = async ({ canal, tiempo }) => {
+  //console.log("Canal:", canal);
+
   if (canal !== undefined) {
-    // Simulación de valor ADC con número aleatorio de 0 a 1023
-    const adcValue = Math.floor(Math.random() * 1024);
-    //console.log(adcValue);
-    return adcValue;
+    // Simulación: valor ADC aleatorio entre 0 y 4095 (12 bits)
+    const conversion = Math.floor(Math.random() * 4096);
+    console.log(conversion);
+    // Emitir al cliente WebSocket
+    Sockets.enviarMensaje('adcPlc',{ canal, conversion, tiempo });
+
+    return conversion;
   }
+
   return null;
 };
 
 // =======================
 // Lectura periódica de ADC
 // =======================
-const ejecutarADC = async ({canal, muestreo, duracion}) => {
+const ejecutarADC = async ({ canal, muestreo, duracion }) => {
+  // console.log("⚙️ Ejecutando ADC...");
+  // console.log(`➡️ canal=${canal}, muestreo=${muestreo}ms, duracion=${duracion}ms`);
+
   const fin = Date.now() + duracion;
   const resultados = [];
-  //console.log(`Iniciando lectura ADC en canal ${canal} cada ${muestreo}ms por ${duracion}ms`);
+  const Ts = muestreo / 1000; // segundos
+  let tiempoTranscurrido = 0;
+
+
   while (Date.now() < fin) {
-    const valor = await leerADC(canal);
-    resultados.push(valor);
+    // Calcular tiempo actual
+    const tiempoActual = parseFloat(tiempoTranscurrido.toFixed(2));
+    //console.log("⏲️ Tiempo actual:", tiempoActual);
+
+    // Llamar al ADC
+    const conversion = await leerADC({canal, tiempo: tiempoActual });
+    //console.log("🔹 Valor ADC:", valor);
+
+    resultados.push({
+      canal,
+      tiempo: tiempoActual,
+      conversion,
+    });
+
+    tiempoTranscurrido += Ts;
+    // console.log("🧭 Tiempo transcurrido:", tiempoTranscurrido);
+
     await new Promise((r) => setTimeout(r, muestreo));
   }
 
+  // console.log("✅ Finalizado. Total muestras:", resultados.length);
   return resultados;
 };
+
+
 
 // =======================
 // Escritura de PWM
@@ -88,14 +119,15 @@ const ejecutarControlPI = async ({ canalAdc, canalPwm, setpoint_volt, tiempo_mue
 
   while (Date.now() < fin) {
     // 1️⃣ Leer ADC
-    let valorADC = await leerADC(canalAdc);
-    if (valorADC < 0) valorADC = 0;
+    const conversion = await leerADC({canal:canalAdc,tiempo: tiempoTranscurrido});
+    
+    if (conversion < 0) conversion = 0;
 
     // 2️⃣ Convertir a voltaje 0–10V
-    const voltage = (10.0 * valorADC) / 4095;
+    const voltage = (10.0 * conversion) / 4095;
 
     // 3️⃣ Calcular error PI
-    const error = setpoint_volt - voltage;
+    const error = (setpoint_volt - voltage);
     integralError += Ts * error;
     let controlVoltage = kp * (error + (1.0 / Ti) * integralError);
 
@@ -104,15 +136,13 @@ const ejecutarControlPI = async ({ canalAdc, canalPwm, setpoint_volt, tiempo_mue
 
     // 5️⃣ Escalar control a PWM 12-bit
     const valorPWM = Math.round((controlVoltage / 10) * 4095);
-    escribirPWM(canalPwm, valorPWM);
+    escribirPWM({canalPwm, valorPWM});
 
     // Crear JSON con la info
     const dato = {
       tiempo: tiempoTranscurrido.toFixed(2),
-      Adc: valorADC,
       Voltaje: voltage.toFixed(2),
-      Control_V: controlVoltage.toFixed(2),
-      Pwm: valorPWM,
+      error: error.toFixed(2),
     };
 
     resultados.push(dato); // guardar en el array
@@ -124,7 +154,7 @@ const ejecutarControlPI = async ({ canalAdc, canalPwm, setpoint_volt, tiempo_mue
   // 👇 Estructura final
   return {
     Prueba: new Date().toISOString(),
-    Datos: resultados
+    resultados
   };
 };
 
