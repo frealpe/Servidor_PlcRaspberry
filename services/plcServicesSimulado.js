@@ -158,7 +158,68 @@ const ejecutarControlPI = async ({ canalAdc, canalPwm, setpoint_volt, tiempo_mue
   };
 };
 
+// =======================
+// Caracterización del sistema
+// =======================
+const ejecutarCaracterizacion = async ({
+  canalAdc = 0,
+  canalPwm = 0,
+  tiempo_muestreo_ms = 100,
+  secuencia = [
+    { porcentaje: 30, duracion_s: 20 },
+    { porcentaje: 10, duracion_s: 30 },
+  ],
+}) => {
+  const resultados = [];
+  const Ts = tiempo_muestreo_ms / 1000; // segundos
+  let tiempoTranscurrido = 0;
 
+  console.log(`⚙️ Iniciando caracterización secuencial PWM-ADC...`);
+
+  for (const paso of secuencia) {
+    const pwmObjetivo = Math.round((paso.porcentaje / 100) * 4095);
+    const duracionPasoMs = paso.duracion_s * 1000;
+    const inicioPaso = Date.now();
+    const finPaso = inicioPaso + duracionPasoMs;
+
+    console.log(`➡️ Nivel ${paso.porcentaje}% (${pwmObjetivo}) durante ${paso.duracion_s}s`);
+
+    // Mantiene el PWM constante en este nivel durante la duración especificada
+    while (Date.now() < finPaso) {
+      // 1️⃣ Escribir PWM
+      escribirPWM(canalPwm, pwmObjetivo);
+
+      // 2️⃣ Leer ADC
+      const conversion = await leerADC({
+        canal: canalAdc,
+        tiempo: parseFloat(tiempoTranscurrido.toFixed(3)),
+      });
+
+      // 3️⃣ Escalar ADC a voltaje (0–10 V)
+      const voltaje = (10.0 * conversion) / 4095.0;
+
+      // 4️⃣ Guardar registro
+      resultados.push({
+        tiempo: parseFloat(tiempoTranscurrido.toFixed(3)),
+        pwm: pwmObjetivo,
+        adc: conversion,
+        voltaje: parseFloat(voltaje.toFixed(3)),
+      });
+
+      // 5️⃣ Esperar siguiente muestreo
+      tiempoTranscurrido += Ts;
+      await new Promise((r) => setTimeout(r, tiempo_muestreo_ms));
+    }
+  }
+
+  // 🧾 Resultado final
+  return {
+    Prueba: new Date().toISOString(),
+    resultados,
+  };
+};
+
+// =======================
 
 // =======================
 // Exportación
@@ -170,4 +231,5 @@ module.exports = {
   ejecutarADC,
   escribirPWM,
   ejecutarControlPI,
+  ejecutarCaracterizacion
 };

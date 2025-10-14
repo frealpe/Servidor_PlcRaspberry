@@ -1,16 +1,16 @@
 // controllers/chatgptplc.js
 
-const { datalogger } = require("../services/datalogger.js");
+const { datalogger, caracterizacion } = require("../services/datalogger.js");
 const { saveEmbedding } = require("../services/embedding.js");
 const { generarComandoPLC } = require("../services/gtpServices");
-//const { escribirSalida, leerEntrada, ejecutarADC, ejecutarControlPI } = require("../services/plcServicesSimulado");
-const { escribirSalida, leerEntrada, ejecutarADC, ejecutarControlPI } = require("../services/plcServices");
+//const { escribirSalida, leerEntrada, ejecutarADC, ejecutarControlPI, ejecutarCaracterizacion } = require("../services/plcServicesSimulado");
+const { escribirSalida, leerEntrada, ejecutarADC, ejecutarControlPI,ejecutarCaracterizacion } = require("../services/plcServices");
 const procesarPromptIO = async (prompt) => {
   try {
     if (!prompt) return { ok: false, msg: "El campo 'prompt' es obligatorio" };
 
     const comando = await generarComandoPLC(prompt);
-    // console.log("📥 Comando generado recibido (IO):", comando);
+    console.log("📥 Comando generado recibido (IO):", comando);
 
     if (!comando || !comando.accion) {
       return { ok: false, msg: "Comando inválido generado" };
@@ -19,7 +19,7 @@ const procesarPromptIO = async (prompt) => {
     let resultado = null;
 
     if (comando.accion === "salida") {
-      resultado = await escribirSalida(comando.pin, comando.estado);
+       resultado = await escribirSalida({ pin: comando.pin, valor: comando.estado });
     } else if (comando.accion === "entrada") {
       resultado = await leerEntrada(comando.pin);
     }
@@ -50,8 +50,8 @@ const procesarPromptIAdc = async (prompt) => {
         duracion: comando.duracion_ms
       });
     }
-
-    return { ok: true, resultado };
+    //console.log(resultado);
+    return {resultado };
 
   } catch (error) {
     console.error("❌ Error en procesarPromptIAdc:", error.message);
@@ -105,9 +105,71 @@ const procesarPromptSupervisor = async (prompt) => {
   }
 };
 
+// 🧠 Procesa un prompt y ejecuta la caracterización
+const procesarPromptCaracterizacion = async (prompt) => {
+  try {
+    console.log("🤖 Procesando prompt de caracterizacion");
+    if (!prompt) {
+      return { ok: false, msg: "El campo 'prompt' es obligatorio" };
+    }
+
+    // 🧩 Paso 1: Interpretar prompt con GPT → comando PLC
+    const comando = await generarComandoPLC(prompt);
+    console.log("📥 Comando generado recibido (Caracterización):", comando);
+
+    if (!comando || comando.accion !== "caracterizacion") {
+      return {
+        ok: false,
+        msg: "No se generó un comando de caracterización válido",
+        comando,
+      };
+    }
+
+    // 🧩 Paso 2: Preparar parámetros para la ejecución
+    const parametros = {
+      canalAdc: comando.canalAdc ?? 0,
+      canalPwm: comando.canalPwm ?? 0,
+      tiempo_muestreo_ms: comando.tiempo_muestreo_ms ?? 100,
+      secuencia: Array.isArray(comando.secuencia) && comando.secuencia.length > 0
+        ? comando.secuencia
+        : [
+            // 🔧 Secuencia por defecto si GPT no la genera
+            { porcentaje: 50, duracion_s: 10 },
+            { porcentaje: 20, duracion_s: 10 },
+          ],
+    };
+
+    console.log("🧠 Parámetros generados para caracterización:", parametros);
+
+    // ⚙️ Paso 3: Ejecutar la caracterización con los parámetros recibidos
+    const { resultados: res, Prueba } = await ejecutarCaracterizacion(parametros);
+
+    // 🧾 Paso 4: Registrar o guardar resultados (si aplica)
+    caracterizacion({ resultados: res, Prueba });
+    // saveEmbedding({ prompt, resultados: res, Prueba });
+
+    console.log("✅ Caracterización completada con éxito.");
+
+    // 🧩 Paso 5: Retornar respuesta estándar
+    return { ok: true, resultados: res, Prueba };
+
+  } catch (error) {
+    console.error("❌ Error en procesarPromptCaracterizacion:", error);
+    return {
+      ok: false,
+      msg: "Error al procesar la caracterización con GPT",
+      error: error.message,
+    };
+  }
+};
+
+
+
+
 module.exports = { 
   procesarPromptIO, 
   procesarPromptIAdc, 
   procesarPromptControl,
-  procesarPromptSupervisor 
+  procesarPromptSupervisor,
+  procesarPromptCaracterizacion 
 };

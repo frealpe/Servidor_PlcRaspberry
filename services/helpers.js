@@ -1,6 +1,34 @@
 import crossfilter from 'crossfilter2';
 import * as ss from 'simple-statistics'; // Para calcular cuantiles
 
+export const PINES = {
+  "0": 20971532,
+  "1": 20971531,
+  "2": 20971535,
+  "3": 20971534,
+  "4": 20971526,
+  "5": 20971527,
+  "6": 20971522,
+  "7": 20971520,
+  "8": 20971530,
+  "9": 21037057,
+  "10": 20971529,
+  "11": 21037056,
+  "12": 20971533,
+  "13": 20971528,
+  "14": 20971525,
+  "15": 20971521,
+  "16": 21037063,
+  "17": 21037062,
+  "18": 21037059,
+  "19": 21037061,
+  "20": 21037058,
+  "21": 21037060,
+  "22": 20971524,
+  "23": 20971523,
+}
+
+
 function calcularRangosFD(consumos) {
   const n = consumos.length;
   if (n === 0) return { binWidth: 0, rangos: [] };

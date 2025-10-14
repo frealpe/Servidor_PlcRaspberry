@@ -7,7 +7,7 @@ const Sockets = require("../lib/socket");
 const escribirSalida = ({ pin, valor }) => {
   if (pin !== undefined && (valor === 0 || valor === 1)) {
     rpiplc.writeDigital(PINES[pin], valor);
-    console.log(`✅ Salida ${pin} configurada en ${valor}`);
+    console.log(`✅ Salida ${PINES[pin]} configurada en ${valor}`);
     return `✅ Salida ${pin} configurada en ${valor}`;
   }
   return `⚠️ Pin ${pin} no definido o valor inválido`;
@@ -43,24 +43,25 @@ const leerADC = async ({ canal, tiempo }) => {
 // =======================
 const ejecutarADC = async ({ canal, muestreo, duracion }) => {
   const fin = Date.now() + duracion;
-  const resultados = [];
+  const resultado = [];
   const Ts = muestreo / 1000; // segundos
   let tiempoTranscurrido = 0;
 
   while (Date.now() < fin) {
     const tiempoActual = parseFloat(tiempoTranscurrido.toFixed(2));
 
-    const conversion = leerADC({canal, tiempo: tiempoActual });
-    resultados.push({
+    const conversion = await leerADC({canal, tiempo: tiempoActual });
+    const voltage = (10.0 * conversion) / 4095.0;
+    resultado.push({
       canal,
       tiempo: tiempoActual,
-      conversion,
+      voltaje:voltage,
     });
     tiempoTranscurrido += Ts;
     await new Promise((r) => setTimeout(r, muestreo));
   }
 
-  return resultados;
+  return resultado;
 };
 
 // =======================
@@ -155,6 +156,67 @@ const ejecutarControlPI = async ({
     resultados,
   };
 };
+// =======================
+// Caracterización del sistema
+// =======================
+const ejecutarCaracterizacion = async ({
+  canalAdc = 0,
+  canalPwm = 0,
+  tiempo_muestreo_ms = 100,
+  secuencia = [
+    { porcentaje: 30, duracion_s: 20 },
+    { porcentaje: 10, duracion_s: 30 },
+  ],
+}) => {
+  const resultados = [];
+  const Ts = tiempo_muestreo_ms / 1000; // segundos
+  let tiempoTranscurrido = 0;
+
+  //console.log(`⚙️ Iniciando caracterización secuencial PWM-ADC...`);
+
+  for (const paso of secuencia) {
+    const pwmObjetivo = Math.round((paso.porcentaje / 100) * 4095);
+    const duracionPasoMs = paso.duracion_s * 1000;
+    const inicioPaso = Date.now();
+    const finPaso = inicioPaso + duracionPasoMs;
+
+   // console.log(`➡️ Nivel ${paso.porcentaje}% (${pwmObjetivo}) durante ${paso.duracion_s}s`);
+
+    // Mantiene el PWM constante en este nivel durante la duración especificada
+    while (Date.now() < finPaso) {
+      // 1️⃣ Escribir PWM
+      rpiplc.writePWM(canalPwm, pwmObjetivo);
+      // 2️⃣ Leer ADC
+      const conversion = await leerADC({
+        canal: canalAdc,
+        tiempo: parseFloat(tiempoTranscurrido.toFixed(3)),
+      });
+
+      // 3️⃣ Escalar ADC a voltaje (0–10 V)
+      const voltaje = (10.0 * conversion) / 4095.0;
+
+      // 4️⃣ Guardar registro
+      resultados.push({
+        tiempo: parseFloat(tiempoTranscurrido.toFixed(3)),
+        pwm: pwmObjetivo,
+        voltaje: parseFloat(voltaje.toFixed(3)),
+      });
+
+      // 5️⃣ Esperar siguiente muestreo
+      tiempoTranscurrido += Ts;
+      await new Promise((r) => setTimeout(r, tiempo_muestreo_ms));
+    }
+  }
+
+  // 🧾 Resultado final
+  return {
+    Prueba: new Date().toISOString(),
+    resultados,
+  };
+};
+
+
+// =======================
 
 // =======================
 // Exportación
@@ -166,4 +228,5 @@ module.exports = {
   ejecutarADC,
   escribirPWM,
   ejecutarControlPI,
+  ejecutarCaracterizacion
 };

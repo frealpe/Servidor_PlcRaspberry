@@ -1,9 +1,12 @@
 
-const { procesarPromptIAdc, procesarPromptIO, procesarPromptControl, procesarPromptSupervisor } = require("../controllers/plcControllerAi");
+const { procesarPromptIAdc, procesarPromptIO, procesarPromptControl, procesarPromptSupervisor, procesarPromptCaracterizacion } = require("../controllers/plcControllerAi");
 const { publicarMQTT, suscribirTopics } = require("../mqtt/conectMqtt");
 
 function IA() {
-  suscribirTopics(["Plc/Adc","Plc/Ia","Plc/Control","Plc/Supervisor"], async (topic, msg) => {
+  suscribirTopics(["Plc/Adc","Plc/Ia","Plc/Control","Plc/Supervisor","Plc/Caracterizacion"], async (topic, msg) => {
+    
+    console.log(`Mensaje recibido en ${topic}:`, msg);  
+    
     try {
       let resultado;
       switch (topic) {
@@ -15,6 +18,8 @@ function IA() {
           resultado = await procesarPromptControl(msg); break;
         case "Plc/Supervisor":
           resultado = await procesarPromptSupervisor(msg); break;
+        case "Plc/Caracterizacion":
+          resultado = await procesarPromptCaracterizacion(msg); break;          
       }
       if (resultado) {
         publicarMQTT("Plc/Respuesta", JSON.stringify(resultado));
