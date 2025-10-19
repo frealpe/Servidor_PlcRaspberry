@@ -2,6 +2,8 @@
 // Escritura digital
 
 const Sockets = require("../lib/socket");
+const { modeloPlanta } = require("../services/modelo");
+
 
 // =======================
 const escribirSalida = ({pin, valor}) => {
@@ -41,7 +43,7 @@ const leerADC = async ({ canal, tiempo }) => {
   if (canal !== undefined) {
     // Simulación: valor ADC aleatorio entre 0 y 4095 (12 bits)
     const conversion = Math.floor(Math.random() * 4096);
-    console.log(conversion);
+    // console.log("Conversion",conversion);
     // Emitir al cliente WebSocket
     Sockets.enviarMensaje('adcPlc',{ canal, conversion, tiempo });
 
@@ -220,6 +222,134 @@ const ejecutarCaracterizacion = async ({
 };
 
 // =======================
+const Caracterizacion = async ({params}) => {
+  try {
+    // --- Validación y conversión ---
+    const N = parseInt(params.N || 1000);
+    const canalPWM = parseInt(params.PwmPin || 0);
+    const canalADC = parseInt(params.AdcPin || 0);
+    const muestreo = parseInt(params.Ts || 50); // en ms
+    const offset = parseFloat(params.Offset || 0.5);
+
+    // Configuración fija o ajustable
+    const amplitud = 0.1; // ±10%
+    const duracion = N * muestreo; // duración total ≈ N muestras * Ts
+    const Ts = muestreo / 1000; // segundos
+
+    console.log("⚙️ Iniciando caracterizacion de planta:");
+    console.log({
+      N,
+      canalPWM,
+      canalADC,
+      muestreo,
+      offset,
+      amplitud,
+      duracion,
+    });
+
+    const resultado = [];
+    let tiempo = 0;
+
+    // 🔸 Espera inicial (similar al delay(5000) en Arduino)
+    // console.log("⏳ Esperando estabilización de la planta (5 s)...");
+    // await new Promise((r) => setTimeout(r, 5000));
+
+    const inicio = Date.now();
+    const fin = inicio + duracion;
+
+    // 🔹 Bucle principal de muestreo
+    while (Date.now() < fin && resultado.length < N) {
+      const signo = Math.random() < 0.5 ? -1 : 1;
+      const duty = offset + amplitud * signo;
+      const pwmValue = Math.round(duty * 4095);
+
+      // Escribir PWM
+      escribirPWM(canalPWM, pwmValue);
+
+      // Leer ADC
+      const conversion = await leerADC({ canal: canalADC, tiempo });
+      const voltaje = (10.0 * conversion) / 4095.0;
+
+      // Registrar muestra
+      const muestra = {
+        tiempo: parseFloat(tiempo.toFixed(3)),
+        pwm: pwmValue,
+        voltaje,
+      };
+
+      resultado.push(muestra);
+
+      // Enviar por socket (si aplica)
+      if (typeof Sockets !== "undefined") {
+        Sockets.enviarMensaje("caracterizacion", muestra);
+      }
+
+      tiempo += Ts;
+      await new Promise((r) => setTimeout(r, muestreo));
+    }
+
+    console.log("✅ Caracterización completada. Muestras:", resultado.length);
+      return {
+        Prueba: new Date().toISOString(),
+        resultado,
+      };
+  } catch (error) {
+    console.error("❌ Error en caracterización:", error);
+    throw error;
+  }
+};
+// =======================
+// Identifcicación de modelo
+// =======================
+const Identificacion = async ({ Ts, data }) => {
+  try {
+    const N = data.length;
+    const muestreoMs = Ts * 1000; // en milisegundos
+    console.log("⚙️ Iniciando identificación de planta en tiempo real:", { N, Ts, muestreoMs });
+
+    const resultado = [];
+    let tiempo = 0;
+
+    // 🔁 Bucle en tiempo real: una muestra por iteración, con espera
+    for (let i = 0; i < N; i++) {
+      const { pwm } = data[i];
+      const u = pwm / 4095; // normalizar a [0,1]
+      const y = modeloPlanta(u); // salida normalizada
+      const conversion = Math.round(y * 4095); // escalar a 12 bits
+
+      const muestra = {
+        canal: 0,
+        conversion,
+        tiempo: parseFloat(tiempo.toFixed(3)),
+      };
+
+      // ✅ Emitir inmediatamente (como hacen las otras funciones)
+      Sockets.enviarMensaje("adcPlc", muestra);
+      console.log(`📤 Enviada muestra ${i + 1}/${N}:`, muestra);
+
+      // Guardar localmente también
+      resultado.push(muestra);
+
+      // Avanzar tiempo
+      tiempo += Ts;
+
+      // ⏳ Esperar el tiempo de muestreo (solo si no es la última muestra)
+      if (i < N - 1) {
+        await new Promise((r) => setTimeout(r, muestreoMs));
+      }
+    }
+
+    console.log("✅ Identificación completada. Total muestras:", resultado.length);
+
+    return {
+      Fecha: new Date().toISOString(),
+      resultado,
+    };
+  } catch (error) {
+    console.error("❌ Error en identificación:", error);
+    throw error;
+  }
+};
 
 // =======================
 // Exportación
@@ -231,5 +361,7 @@ module.exports = {
   ejecutarADC,
   escribirPWM,
   ejecutarControlPI,
-  ejecutarCaracterizacion
+  ejecutarCaracterizacion,
+  Caracterizacion,
+  Identificacion
 };

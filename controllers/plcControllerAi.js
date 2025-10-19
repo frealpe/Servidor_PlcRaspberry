@@ -1,17 +1,29 @@
-// controllers/chatgptplc.js
-
-const { datalogger, caracterizacion } = require("../services/datalogger.js");
-const { saveEmbedding } = require("../services/embedding.js");
+const pool = require("../database/config");
+const {
+  datalogger,
+  guardarCaracterizacion,
+} = require("../services/datalogger");
 const { generarComandoPLC } = require("../services/gtpServices");
-//const { escribirSalida, leerEntrada, ejecutarADC, ejecutarControlPI, ejecutarCaracterizacion } = require("../services/plcServicesSimulado");
-const { escribirSalida, leerEntrada, ejecutarADC, ejecutarControlPI,ejecutarCaracterizacion } = require("../services/plcServices");
+const {
+  gtpServicesCaracterizacion,
+} = require("../services/gtpServicesCaracterizacion");
+const {
+  identificarModeloIA,
+} = require("../services/gtpServicesIndentificacion");
+const {
+  escribirSalida,
+  leerEntrada,
+  ejecutarADC,
+  ejecutarControlPI, 
+  Caracterizacion,
+  Identificacion,
+} = require("../services/plcServicesSimulado");
+
 const procesarPromptIO = async (prompt) => {
   try {
     if (!prompt) return { ok: false, msg: "El campo 'prompt' es obligatorio" };
 
     const comando = await generarComandoPLC(prompt);
-    console.log("📥 Comando generado recibido (IO):", comando);
-
     if (!comando || !comando.accion) {
       return { ok: false, msg: "Comando inválido generado" };
     }
@@ -19,16 +31,21 @@ const procesarPromptIO = async (prompt) => {
     let resultado = null;
 
     if (comando.accion === "salida") {
-       resultado = await escribirSalida({ pin: comando.pin, valor: comando.estado });
+      resultado = await escribirSalida({
+        pin: comando.pin,
+        valor: comando.estado,
+      });
     } else if (comando.accion === "entrada") {
       resultado = await leerEntrada(comando.pin);
     }
 
     return { ok: true, resultado };
-
   } catch (error) {
-    console.error("❌ Error en procesarPromptIO:", error.message);
-    return { ok: false, msg: "Error al procesar la consulta con GPT", error: error.message };
+    return {
+      ok: false,
+      msg: "Error al procesar la consulta con GPT",
+      error: error.message,
+    };
   }
 };
 
@@ -47,15 +64,17 @@ const procesarPromptIAdc = async (prompt) => {
       resultado = await ejecutarADC({
         canal: comando.canal,
         muestreo: comando.intervalo_ms,
-        duracion: comando.duracion_ms
+        duracion: comando.duracion_ms,
       });
     }
-    //console.log(resultado);
-    return {resultado };
 
+    return { resultado };
   } catch (error) {
-    console.error("❌ Error en procesarPromptIAdc:", error.message);
-    return { ok: false, msg: "Error al procesar la consulta con GPT", error: error.message };
+    return {
+      ok: false,
+      msg: "Error al procesar la consulta con GPT",
+      error: error.message,
+    };
   }
 };
 
@@ -70,91 +89,58 @@ const procesarPromptControl = async (prompt) => {
 
     let resultados = null;
 
-    if (comando.accion === 'control') {
+    if (comando.accion === "control") {
       const { resultados: res, Prueba } = await ejecutarControlPI({
         canalAdc: comando.canalAdc,
         canalPwm: comando.canalPwm,
         setpoint_volt: comando.setpoint_volt,
         tiempo_muestreo_ms: comando.tiempo_muestreo_ms,
-        tiempo_simulacion_ms: comando.tiempo_simulacion_ms
+        tiempo_simulacion_ms: comando.tiempo_simulacion_ms,
       });
 
       resultados = res;
       datalogger({ resultados, Prueba });
-      //saveEmbedding({ prompt, resultados, Prueba });
-
     }
 
     return { ok: true, resultados };
-
   } catch (error) {
-    console.error("❌ Error en procesarPromptControl:", error.message);
-    return { ok: false, msg: "Error al procesar el control con GPT", error: error.message };
+    return {
+      ok: false,
+      msg: "Error al procesar el control con GPT",
+      error: error.message,
+    };
   }
 };
 
 const procesarPromptSupervisor = async (prompt) => {
   try {
     if (!prompt) return { ok: false, msg: "El campo 'prompt' es obligatorio" };
-
     return { ok: true, comando: "Informe generando" };
-
   } catch (error) {
-    console.error("❌ Error en procesarPromptSupervisor:", error.message);
-    return { ok: false, msg: "Error al procesar el supervisor con GPT", error: error.message };
+    return {
+      ok: false,
+      msg: "Error al procesar el supervisor con GPT",
+      error: error.message,
+    };
   }
 };
 
-// 🧠 Procesa un prompt y ejecuta la caracterización
 const procesarPromptCaracterizacion = async (prompt) => {
   try {
-    console.log("🤖 Procesando prompt de caracterizacion");
-    if (!prompt) {
-      return { ok: false, msg: "El campo 'prompt' es obligatorio" };
-    }
+    if (!prompt) return { ok: false, msg: "El campo 'prompt' es obligatorio" };
 
-    // 🧩 Paso 1: Interpretar prompt con GPT → comando PLC
-    const comando = await generarComandoPLC(prompt);
-    console.log("📥 Comando generado recibido (Caracterización):", comando);
+    console.log("Comando caracterización generado:", prompt);
 
-    if (!comando || comando.accion !== "caracterizacion") {
-      return {
-        ok: false,
-        msg: "No se generó un comando de caracterización válido",
-        comando,
-      };
-    }
+    const comando = await gtpServicesCaracterizacion(prompt);
+    const { resultado, Prueba } = await Caracterizacion({ params: comando });
+    const registro = await guardarCaracterizacion({ resultado, Prueba });
 
-    // 🧩 Paso 2: Preparar parámetros para la ejecución
-    const parametros = {
-      canalAdc: comando.canalAdc ?? 0,
-      canalPwm: comando.canalPwm ?? 0,
-      tiempo_muestreo_ms: comando.tiempo_muestreo_ms ?? 100,
-      secuencia: Array.isArray(comando.secuencia) && comando.secuencia.length > 0
-        ? comando.secuencia
-        : [
-            // 🔧 Secuencia por defecto si GPT no la genera
-            { porcentaje: 50, duracion_s: 10 },
-            { porcentaje: 20, duracion_s: 10 },
-          ],
+    return {
+      ok: true,
+      msg: "Caracterización procesada e insertada correctamente",
+      registro,
     };
-
-    console.log("🧠 Parámetros generados para caracterización:", parametros);
-
-    // ⚙️ Paso 3: Ejecutar la caracterización con los parámetros recibidos
-    const { resultados: res, Prueba } = await ejecutarCaracterizacion(parametros);
-
-    // 🧾 Paso 4: Registrar o guardar resultados (si aplica)
-    caracterizacion({ resultados: res, Prueba });
-    // saveEmbedding({ prompt, resultados: res, Prueba });
-
-    console.log("✅ Caracterización completada con éxito.");
-
-    // 🧩 Paso 5: Retornar respuesta estándar
-    return { ok: true, resultados: res, Prueba };
-
   } catch (error) {
-    console.error("❌ Error en procesarPromptCaracterizacion:", error);
     return {
       ok: false,
       msg: "Error al procesar la caracterización con GPT",
@@ -163,13 +149,76 @@ const procesarPromptCaracterizacion = async (prompt) => {
   }
 };
 
+const procesarPromptIdentificacion = async (prompt) => {
+  try {
+    const client = await pool.connect(); // conectamos un cliente
+
+    let datosPrompt;
+    try {
+      datosPrompt = typeof prompt === "string" ? JSON.parse(prompt) : prompt;
+    } catch {
+      return { ok: false, tipo: "Identificacion", error: "JSON inválido." };
+    }
+
+    const { consulta, orden } = datosPrompt;
+
+    if (!consulta) {
+      return {
+        ok: false,
+        tipo: "Identificacion",
+        error: "No hay consulta SQL.",
+      };
+    }
+
+    const resQuery = await client.query(consulta);
+    client.release(); // liberamos el cliente inmediatamente
+
+    if (resQuery.rowCount === 0) {
+      return {
+        ok: false,
+        tipo: "Identificacion",
+        error: "No se encontraron registros.",
+      };
+    }
+
+    const registro = resQuery.rows[0];
+    const data = registro.resultado;
+
+    if (!Array.isArray(data)) {
+      return {
+        ok: false,
+        tipo: "Identificacion",
+        error: "'resultado' no es un array válido.",
+      };
+    }
+
+    const { Ts } = await identificarModeloIA({ data, orden });
+
+    await Identificacion({ Ts, data });
+    // 🔹 Envío uno a uno con retardo Ts
+    return {
+      ok: true,
+      tipo: "Identificacion",
+     
+    };
+  } catch (error) {
+    console.error("❌ Error en procesarPromptIdentificacion:", error);
+    return {
+      ok: false,
+      tipo: "Identificacion",
+      error: error.message || "Error interno en el procesamiento.",
+    };
+  }
+};
 
 
 
-module.exports = { 
-  procesarPromptIO, 
-  procesarPromptIAdc, 
+
+module.exports = {
+  procesarPromptIO,
+  procesarPromptIAdc,
   procesarPromptControl,
   procesarPromptSupervisor,
-  procesarPromptCaracterizacion 
+  procesarPromptCaracterizacion,
+  procesarPromptIdentificacion,
 };

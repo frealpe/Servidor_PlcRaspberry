@@ -1,5 +1,7 @@
-require('dotenv').config();
+const dotenv = require('dotenv');
 const { Pool } = require('pg');
+
+dotenv.config();
 
 const pool = new Pool({
   host: process.env.PG_HOST,
@@ -12,12 +14,11 @@ const pool = new Pool({
 
 pool.connect()
   .then(client => {
-    console.log('📦 Base de datos PostgreSQL en línea');
+    console.log("📦 Base de datos PostgreSQL en línea");
     client.release();
   })
   .catch(err => {
-    console.error('❌ Error de conexión a la BD:', err);
+    console.error("❌ Error de conexión a la BD:", err);
   });
 
-// Exportamos el pool, no lo redeclaramos en otro lado
-module.exports = { dbConnection: () => pool };
+module.exports = pool; // exportamos el pool directamente

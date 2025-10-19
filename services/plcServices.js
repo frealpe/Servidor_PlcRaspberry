@@ -1,6 +1,7 @@
 const rpiplc = require("../rpiplc-addon/build/Release/rpiplc");
 const { PINES } = require("./helpers");
 const Sockets = require("../lib/socket");
+const { modeloPlanta } = require("../services/modelo");
 // =======================
 // Escritura digital
 // =======================
@@ -215,18 +216,133 @@ const ejecutarCaracterizacion = async ({
   };
 };
 
+// =============================
+// FUNCIÓN PRINCIPAL: CARACTERIZACIÓN
+// =============================
+const Caracterizacion = async ({params}) => {
+  try {
+    // --- Validación y conversión ---
+    const N = parseInt(params.N || 1000);
+    const canalPWM = parseInt(params.PwmPin || 0);
+    const canalADC = parseInt(params.AdcPin || 0);
+    const muestreo = parseInt(params.Ts || 50); // en ms
+    const offset = parseFloat(params.Offset || 0.5);
+
+    // Configuración fija o ajustable
+    const amplitud = 0.1; // ±10%
+    const duracion = N * muestreo; // duración total ≈ N muestras * Ts
+    const Ts = muestreo / 1000; // segundos
+
+    console.log("⚙️ Iniciando caracterización de planta:");
+    console.log({
+      N,
+      canalPWM,
+      canalADC,
+      muestreo,
+      offset,
+      amplitud,
+      duracion,
+    });
+
+    const resultado = [];
+    let tiempo = 0;
+
+    // 🔸 Espera inicial (similar al delay(5000) en Arduino)
+    console.log("⏳ Esperando estabilización de la planta (5 s)...");
+    await new Promise((r) => setTimeout(r, 5000));
+
+    const inicio = Date.now();
+    const fin = inicio + duracion;
+
+    // 🔹 Bucle principal de muestreo
+    while (Date.now() < fin && resultado.length < N) {
+      const signo = Math.random() < 0.5 ? -1 : 1;
+      const duty = offset + amplitud * signo;
+      const pwmValue = Math.round(duty * 4095);
+
+      // Escribir PWM
+      escribirPWM(canalPWM, pwmValue);
+
+      // Leer ADC
+      const conversion = await leerADC({ canal: canalADC, tiempo });
+      const voltaje = (10.0 * conversion) / 4095.0;
+
+      // Registrar muestra
+      const muestra = {
+        tiempo: parseFloat(tiempo.toFixed(3)),
+        pwm: pwmValue,
+        voltaje,
+      };
+
+      resultado.push(muestra);
+
+      // Enviar por socket (si aplica)
+      if (typeof Sockets !== "undefined") {
+        Sockets.enviarMensaje("caracterizacion", muestra);
+      }
+
+      tiempo += Ts;
+      await new Promise((r) => setTimeout(r, muestreo));
+    }
+
+    console.log("✅ Caracterización completada. Muestras:", resultado.length);
+      return {
+        Prueba: new Date().toISOString(),
+        resultado,
+      };
+  } catch (error) {
+    console.error("❌ Error en caracterización:", error);
+    throw error;
+  }
+};
 
 // =======================
+// Identificación de modelo
+// =======================
+const Identificacion = async ({
+  Ts,
+  data
+}) => {
 
+  try {
+
+     const N = data.length;
+     const resultado = [];
+
+    // 🔹 Bucle de simulación
+    let tiempo = 0;
+    for (let i = 0; i < N; i++) {
+      const { pwm } = data[i];
+      const u = pwm / 4096;
+      const y = modeloPlanta(u);
+      const yVoltaje = y * 4095;
+
+      const muestra = {
+        canal: 0,
+        conversion: parseFloat(yVoltaje.toFixed(3)),
+        tiempo: parseFloat(tiempo.toFixed(3)),
+      };
+
+      resultado.push(muestra);
+      tiempo += Ts;
+    }
+
+  } catch (error) {
+    console.error("❌ Error en identificación:", error);
+    throw error;
+  }
+}
 // =======================
 // Exportación
 // =======================
 module.exports = {
+  Identificacion,
   escribirSalida,
   leerEntrada,
   leerADC,
   ejecutarADC,
   escribirPWM,
   ejecutarControlPI,
-  ejecutarCaracterizacion
+  ejecutarCaracterizacion,
+  Caracterizacion
 };
