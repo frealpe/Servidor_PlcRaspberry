@@ -126,10 +126,10 @@ const ejecutarControlPI = async ({ canalAdc, canalPwm, setpoint_volt, tiempo_mue
     if (conversion < 0) conversion = 0;
 
     // 2️⃣ Convertir a voltaje 0–10V
-    const voltage = (10.0 * conversion) / 4095;
+    const voltaje = (10.0 * conversion) / 4095;
 
     // 3️⃣ Calcular error PI
-    const error = (setpoint_volt - voltage);
+    const error = (setpoint_volt - voltaje);
     integralError += Ts * error;
     let controlVoltage = kp * (error + (1.0 / Ti) * integralError);
 
@@ -143,8 +143,8 @@ const ejecutarControlPI = async ({ canalAdc, canalPwm, setpoint_volt, tiempo_mue
     // Crear JSON con la info
     const dato = {
       tiempo: tiempoTranscurrido.toFixed(2),
-      Voltaje: voltage.toFixed(2),
-      error: error.toFixed(2),
+      voltaje,
+      pwm: valorPWM,
     };
 
     resultados.push(dato); // guardar en el array
@@ -230,9 +230,9 @@ const Caracterizacion = async ({params}) => {
     const canalADC = parseInt(params.AdcPin || 0);
     const muestreo = parseInt(params.Ts || 50); // en ms
     const offset = parseFloat(params.Offset || 0.5);
-
+    const amplitud = parseFloat(params.amplitud || 0.1);
     // Configuración fija o ajustable
-    const amplitud = 0.1; // ±10%
+    //const amplitud = 0.1; // ±10%
     const duracion = N * muestreo; // duración total ≈ N muestras * Ts
     const Ts = muestreo / 1000; // segundos
 

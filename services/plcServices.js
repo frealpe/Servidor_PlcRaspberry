@@ -141,10 +141,8 @@ const ejecutarControlPI = async ({
     // 7️⃣ Guardar resultados
     resultados.push({
       tiempo: tiempoTranscurrido.toFixed(2),
-      Voltaje: voltage.toFixed(2),
-      error: error.toFixed(2),
-      salidaPI: controlVoltage.toFixed(2),
-      PWM: valorPWM,
+      voltaje: voltage.toFixed(2),
+      pwm: valorPWM,
     });
 
     // 8️⃣ Esperar siguiente muestreo
@@ -227,9 +225,9 @@ const Caracterizacion = async ({params}) => {
     const canalADC = parseInt(params.AdcPin || 0);
     const muestreo = parseInt(params.Ts || 50); // en ms
     const offset = parseFloat(params.Offset || 0.5);
+    const amplitud = parseFloat(params.amplitud || 0.1);
 
-    // Configuración fija o ajustable
-    const amplitud = 0.1; // ±10%
+    // Configuración fija o ajustable    
     const duracion = N * muestreo; // duración total ≈ N muestras * Ts
     const Ts = muestreo / 1000; // segundos
 
@@ -299,39 +297,55 @@ const Caracterizacion = async ({params}) => {
 // =======================
 // Identificación de modelo
 // =======================
-const Identificacion = async ({
-  Ts,
-  data
-}) => {
-
+const Identificacion = async ({ Ts, data }) => {
   try {
+    const N = data.length;
+    const muestreoMs = Ts * 1000; // en milisegundos
+    console.log("⚙️ Iniciando identificación de planta en tiempo real:", { N, Ts, muestreoMs });
 
-     const N = data.length;
-     const resultado = [];
-
-    // 🔹 Bucle de simulación
+    const resultado = [];
     let tiempo = 0;
+
+    // 🔁 Bucle en tiempo real: una muestra por iteración, con espera
     for (let i = 0; i < N; i++) {
       const { pwm } = data[i];
-      const u = pwm / 4096;
-      const y = modeloPlanta(u);
-      const yVoltaje = y * 4095;
+      const u = pwm / 4095; // normalizar a [0,1]
+      const y = modeloPlanta(u); // salida normalizada
+      const conversion = Math.round(y * 4095); // escalar a 12 bits
 
       const muestra = {
         canal: 0,
-        conversion: parseFloat(yVoltaje.toFixed(3)),
+        conversion,
         tiempo: parseFloat(tiempo.toFixed(3)),
       };
 
+      // ✅ Emitir inmediatamente (como hacen las otras funciones)
+      Sockets.enviarMensaje("adcPlc", muestra);
+      console.log(`📤 Enviada muestra ${i + 1}/${N}:`, muestra);
+
+      // Guardar localmente también
       resultado.push(muestra);
+
+      // Avanzar tiempo
       tiempo += Ts;
+
+      // ⏳ Esperar el tiempo de muestreo (solo si no es la última muestra)
+      if (i < N - 1) {
+        await new Promise((r) => setTimeout(r, muestreoMs));
+      }
     }
 
+    console.log("✅ Identificación completada. Total muestras:", resultado.length);
+
+    return {
+      Fecha: new Date().toISOString(),
+      resultado,
+    };
   } catch (error) {
     console.error("❌ Error en identificación:", error);
     throw error;
   }
-}
+};
 // =======================
 // Exportación
 // =======================
@@ -344,5 +358,6 @@ module.exports = {
   escribirPWM,
   ejecutarControlPI,
   ejecutarCaracterizacion,
-  Caracterizacion
+  Caracterizacion,
+  Identificacion
 };

@@ -1,15 +1,13 @@
-require("dotenv").config();
-const { dbConnection } = require("../database/config");
+const pool = require("../database/config"); // ✅ Importa el pool directamente
 
-async function datalogger({ resultados }) {
+async function datalogger({ resultados, Prueba  }) {
   try {
     if (!resultados || resultados.length === 0) {
       console.warn("⚠️ No se encontraron datos para insertar");
       return;
     }
 
-    const pool = dbConnection();
-    const resultadosJson = JSON.stringify(resultados); // Convertimos a JSONB
+    const resultadosJson = JSON.stringify(resultados);
 
     const query = `
       INSERT INTO DataLogger (resultado)
@@ -30,18 +28,14 @@ async function datalogger({ resultados }) {
   }
 }
 
-
 async function guardarCaracterizacion({ resultado, Prueba }) {
-
-  console.log("Resulatdo a guardar:", { resultado});
-  console.log("Prueba a guardar:", { Prueba});
+  console.log("Resultado a guardar:", { resultado });
+  console.log("Prueba a guardar:", { Prueba });
 
   if (!resultado || (Array.isArray(resultado) && resultado.length === 0)) {
     console.warn("⚠️ No se encontraron datos para insertar");
     return null;
   }
-
-  const pool = dbConnection();
 
   try {
     const query = `
@@ -60,9 +54,7 @@ async function guardarCaracterizacion({ resultado, Prueba }) {
     console.error("❌ Error al guardar en Caracterizacion:", error.message);
     if (error.detail) console.error("Detalle:", error.detail);
     throw error;
-  } finally {
   }
 }
 
-
-module.exports = { datalogger,guardarCaracterizacion };  
+module.exports = { datalogger, guardarCaracterizacion };

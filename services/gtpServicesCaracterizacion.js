@@ -11,7 +11,7 @@ const client = new OpenAI({
  * gtpServicesCaracterizacion
  * ---------------------------
  * Traduce instrucciones naturales a parámetros de caracterización de planta discretos.
- * Garantiza claves con formato exacto: N, PwmPin, AdcPin, Ts, Offset
+ * Garantiza claves con formato exacto: N, PwmPin, AdcPin, Ts, Offset y amplitud
  */
 const gtpServicesCaracterizacion = async (prompt) => {
   if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
@@ -37,14 +37,19 @@ Instrucciones:
      "PwmPin": "0",
      "AdcPin": "0",
      "Ts": "50",
-     "Offset": "0.5"
+     "Offset": "0.5",
+     "amplitud": "0.1"
    }
 
 2. Si el usuario proporciona parámetros (aunque estén en minúsculas o mezcladas), 
-   debes interpretar sus valores y devolverlos con las claves **normalizadas** así:
-   N, PwmPin, AdcPin, Ts, Offset
+   debes interpretarlos y devolverlos con las claves normalizadas: N, PwmPin, AdcPin, Ts, Offset
 
-3. La salida debe ser **solo JSON válido**, sin explicaciones ni texto adicional.
+3. Si el prompt menciona un rango de porcentaje (ej. "secuencia binaria entre 25% y 75%"),
+   calcula:
+   - amplitud = max - min
+   - Offset = (max + min)/2
+
+4. La salida debe ser **solo JSON válido**, sin explicaciones ni texto adicional.
           `,
         },
         { role: "user", content: prompt },
@@ -68,6 +73,16 @@ Instrucciones:
     // 🔹 Normalizar las claves del JSON
     const normalized = normalizeKeys(parsed);
 
+    // 🔹 Detectar rango de porcentaje en el prompt
+    const rangoMatch = prompt.match(/(\d+)\s*%.*?(\d+)\s*%/);
+    if (rangoMatch) {
+      const min = parseFloat(rangoMatch[1]) / 100;
+      const max = parseFloat(rangoMatch[2]) / 100;
+
+      normalized.amplitud = (max - min).toFixed(3);
+      normalized.Offset = ((min + max) / 2).toFixed(3);
+    }
+
     // 🔹 Asegurar que todas las claves estén presentes
     const complete = ensureDefaults(normalized);
 
@@ -80,6 +95,7 @@ Instrucciones:
       AdcPin: "0",
       Ts: "50",
       Offset: "0.5",
+      amplitud: "0.1",
       error: "default_applied",
     };
   }
@@ -94,8 +110,8 @@ function normalizeKeys(obj) {
     pwmpin: "PwmPin",
     pwm_pin: "PwmPin",
     pinpwm: "PwmPin",
-    pwm0:"PwmPin",
-    adc0:"AdcPin",
+    pwm0: "PwmPin",
+    adc0: "AdcPin",
     adcpin: "AdcPin",
     adc_pin: "AdcPin",
     pinadc: "AdcPin",
@@ -103,6 +119,7 @@ function normalizeKeys(obj) {
     tiempo: "Ts",
     tiempoms: "Ts",
     offset: "Offset",
+    amplitud: "amplitud",
   };
 
   const normalized = {};
@@ -112,10 +129,8 @@ function normalizeKeys(obj) {
     const mapped = mapping[cleanKey];
     if (mapped) {
       normalized[mapped] = String(value);
-    } else if (["n", "pwmpin", "adcpin", "ts", "offset"].includes(cleanKey)) {
-      // fallback si la clave ya está bien
-      const normalizedKey =
-        cleanKey.charAt(0).toUpperCase() + cleanKey.slice(1);
+    } else if (["n", "pwmpin", "adcpin", "ts", "offset", "amplitud"].includes(cleanKey)) {
+      const normalizedKey = cleanKey.charAt(0).toUpperCase() + cleanKey.slice(1);
       normalized[normalizedKey] = String(value);
     } else {
       console.warn(`⚠️ Clave desconocida ignorada: ${key}`);
@@ -133,6 +148,7 @@ function ensureDefaults(obj) {
     AdcPin: "0",
     Ts: "50",
     Offset: "0.5",
+    amplitud: "0.1",
   };
 
   for (const key in defaults) {

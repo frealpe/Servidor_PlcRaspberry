@@ -10,6 +10,16 @@ const {
 const {
   identificarModeloIA,
 } = require("../services/gtpServicesIndentificacion");
+// const {
+//   escribirSalida,
+//   leerEntrada,
+//   ejecutarADC,
+//   ejecutarControlPI, 
+//   Caracterizacion,
+//   Identificacion,
+// } = require("../services/plcServicesSimulado");
+
+
 const {
   escribirSalida,
   leerEntrada,
@@ -17,7 +27,7 @@ const {
   ejecutarControlPI, 
   Caracterizacion,
   Identificacion,
-} = require("../services/plcServicesSimulado");
+} = require("../services/plcServices");
 
 const procesarPromptIO = async (prompt) => {
   try {
@@ -132,6 +142,7 @@ const procesarPromptCaracterizacion = async (prompt) => {
     console.log("Comando caracterización generado:", prompt);
 
     const comando = await gtpServicesCaracterizacion(prompt);
+    console.log("Comando caracterización procesado:", comando);
     const { resultado, Prueba } = await Caracterizacion({ params: comando });
     const registro = await guardarCaracterizacion({ resultado, Prueba });
 
@@ -161,6 +172,8 @@ const procesarPromptIdentificacion = async (prompt) => {
     }
 
     const { consulta, orden } = datosPrompt;
+
+    console.log("Consulta SQL para identificación:", consulta);
 
     if (!consulta) {
       return {
