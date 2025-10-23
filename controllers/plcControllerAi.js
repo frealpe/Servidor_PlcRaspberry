@@ -7,19 +7,12 @@ const { generarComandoPLC } = require("../services/gtpServices");
 const {
   gtpServicesCaracterizacion,
 } = require("../services/gtpServicesCaracterizacion");
+const { gtpServicesCompara } = require("../services/gtpServicesCompara");
+const { gtpServicesControlIA } = require("../services/gtpServicesControlIA");
 const {
   identificarModeloIA,
 } = require("../services/gtpServicesIndentificacion");
-// const {
-//   escribirSalida,
-//   leerEntrada,
-//   ejecutarADC,
-//   ejecutarControlPI, 
-//   Caracterizacion,
-//   Identificacion,
-// } = require("../services/plcServicesSimulado");
-
-
+const { gtpServicesPetri } = require("../services/gtpServicesPetri");
 const {
   escribirSalida,
   leerEntrada,
@@ -27,7 +20,19 @@ const {
   ejecutarControlPI, 
   Caracterizacion,
   Identificacion,
-} = require("../services/plcServices");
+  ejecutarComparacion,
+} = require("../services/plcServicesSimulado");
+
+
+// const {
+//   escribirSalida,
+//   leerEntrada,
+//   ejecutarADC,
+//   ejecutarControlPI, 
+//   Caracterizacion,
+//   Identificacion,
+//   ejecutarComparacion,
+// } = require("../services/plcServices");
 
 const procesarPromptIO = async (prompt) => {
   try {
@@ -142,7 +147,7 @@ const procesarPromptCaracterizacion = async (prompt) => {
     console.log("Comando caracterización generado:", prompt);
 
     const comando = await gtpServicesCaracterizacion(prompt);
-    console.log("Comando caracterización procesado:", comando);
+    //console.log("Comando caracterización procesado:", comando);
     const { resultado, Prueba } = await Caracterizacion({ params: comando });
     const registro = await guardarCaracterizacion({ resultado, Prueba });
 
@@ -223,7 +228,92 @@ const procesarPromptIdentificacion = async (prompt) => {
     };
   }
 };
+const procesarPrompComparacion = async (prompt) => {
+  try {
 
+    //console.log("Comando Compara:", prompt);
+    const comando = await gtpServicesCompara(prompt);
+    console.log("Comando Comparacion procesado:", comando);
+    const { resultado, Prueba } = await ejecutarComparacion({...comando });
+
+    console.log("Resultado de la comparación:", resultado);
+    console.log("Prueba de la comparación:", Prueba);
+
+    return {
+      ok: true,
+      msg: "Evaluación de red de Petri procesada correctamente",
+      registro,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      msg: "Error al procesar la caracterización con GPT",
+      error: error.message,
+    };
+  }
+};
+
+const procesarPromptPetri = async (prompt) => {
+  try {
+
+    console.log("Prompt crudo",prompt);
+    // let datosPrompt;
+    // try {
+    //   datosPrompt = typeof prompt === "string" ? JSON.parse(prompt) : prompt;
+    // } catch {
+    //   return { ok: false, tipo: "Identificacion", error: "JSON inválido." };
+    // }
+
+
+    console.log("Comando Petri:", prompt);
+    //const { consulta, orden } = datosPrompt;
+    const comando = await gtpServicesPetri(prompt);
+    console.log("Comando Petri procesado:", comando);
+
+    return {
+      ok: true,
+      msg: "Evaluación de red de Petri procesada correctamente",
+      registro,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      msg: "Error al procesar la caracterización con GPT",
+      error: error.message,
+    };
+  }
+};
+
+const procesarPromptControlIA = async (prompt) => {
+  try {
+    if (!prompt) return { ok: false, msg: "El campo 'prompt' es obligatorio" };
+
+    
+    const pruebacaracterizacion = {
+        consulta: "SELECT * FROM caracterizacion ORDER BY id ASC OFFSET 0 LIMIT 1;",
+        orden: 1
+    };
+
+    
+    await procesarPromptCaracterizacion(prompt=pruebacaracterizacion);
+    
+    const pruebaidentificacion = {
+      consulta: "SELECT * FROM caracterizacion ORDER BY id ASC OFFSET 0 LIMIT 1;",
+      orden: 1
+    };
+    
+    await procesarPromptIdentificacion(prompt=pruebaidentificacion);
+    
+    console.log("Comando ControlIA:", prompt);
+    //const { consulta, orden } = datosPrompt;
+    //const comando = await gtpServicesControlIA(prompt);
+   
+  } catch (error) {
+    return {
+
+    };
+  }
+};
 
 
 
@@ -234,4 +324,7 @@ module.exports = {
   procesarPromptSupervisor,
   procesarPromptCaracterizacion,
   procesarPromptIdentificacion,
+  procesarPromptPetri,
+  procesarPrompComparacion,
+  procesarPromptControlIA
 };

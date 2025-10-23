@@ -30,8 +30,7 @@ Eres un ingeniero experto en identificación de sistemas discretos.
 Tu tarea es devolver **únicamente** un objeto JSON con los parámetros de caracterización de una planta.
 
 Instrucciones:
-1. Si el usuario dice solo "caracterizar la planta" o una instrucción equivalente sin parámetros definidos,
-   responde exactamente:
+1. Si el usuario dice solo "caracterizar la planta" o equivalente, devuelve:
    {
      "N": "1000",
      "PwmPin": "0",
@@ -40,16 +39,11 @@ Instrucciones:
      "Offset": "0.5",
      "amplitud": "0.1"
    }
-
-2. Si el usuario proporciona parámetros (aunque estén en minúsculas o mezcladas), 
-   debes interpretarlos y devolverlos con las claves normalizadas: N, PwmPin, AdcPin, Ts, Offset
-
-3. Si el prompt menciona un rango de porcentaje (ej. "secuencia binaria entre 25% y 75%"),
-   calcula:
+2. Normaliza siempre las claves a: N, PwmPin, AdcPin, Ts, Offset, amplitud
+3. Si hay min/max o rango %, calcula:
    - amplitud = max - min
-   - Offset = (max + min)/2
-
-4. La salida debe ser **solo JSON válido**, sin explicaciones ni texto adicional.
+   - Offset = (min + max)/2
+4. La salida debe ser solo JSON válido, sin texto adicional.
           `,
         },
         { role: "user", content: prompt },
@@ -70,7 +64,7 @@ Instrucciones:
       parsed = JSON.parse(repaired);
     }
 
-    // 🔹 Normalizar las claves del JSON
+    // 🔹 Normalizar claves
     const normalized = normalizeKeys(parsed);
 
     // 🔹 Detectar rango de porcentaje en el prompt
@@ -78,6 +72,19 @@ Instrucciones:
     if (rangoMatch) {
       const min = parseFloat(rangoMatch[1]) / 100;
       const max = parseFloat(rangoMatch[2]) / 100;
+      normalized.amplitud = (max - min).toFixed(3);
+      normalized.Offset = ((min + max) / 2).toFixed(3);
+    } 
+    // 🔹 Detectar min/max en JSON si existen
+    else if (parsed.min !== undefined && parsed.max !== undefined) {
+      let min = parseFloat(parsed.min);
+      let max = parseFloat(parsed.max);
+
+      // Normalizar si los valores parecen porcentaje >1
+      if (min > 1 || max > 1) {
+        min = min / 100;
+        max = max / 100;
+      }
 
       normalized.amplitud = (max - min).toFixed(3);
       normalized.Offset = ((min + max) / 2).toFixed(3);
@@ -101,7 +108,7 @@ Instrucciones:
   }
 };
 
-// 🔧 Función para normalizar nombres de claves a formato estándar
+// 🔧 Normaliza nombres de claves
 function normalizeKeys(obj) {
   const mapping = {
     n: "N",
@@ -111,10 +118,11 @@ function normalizeKeys(obj) {
     pwm_pin: "PwmPin",
     pinpwm: "PwmPin",
     pwm0: "PwmPin",
+    canalpwm: "PwmPin",
     adc0: "AdcPin",
     adcpin: "AdcPin",
     adc_pin: "AdcPin",
-    pinadc: "AdcPin",
+    canaladc: "AdcPin",
     ts: "Ts",
     tiempo: "Ts",
     tiempoms: "Ts",
@@ -123,24 +131,22 @@ function normalizeKeys(obj) {
   };
 
   const normalized = {};
-
   for (const [key, value] of Object.entries(obj)) {
     const cleanKey = key.toLowerCase().replace(/[^a-z]/g, "");
     const mapped = mapping[cleanKey];
     if (mapped) {
-      normalized[mapped] = String(value);
-    } else if (["n", "pwmpin", "adcpin", "ts", "offset", "amplitud"].includes(cleanKey)) {
-      const normalizedKey = cleanKey.charAt(0).toUpperCase() + cleanKey.slice(1);
-      normalized[normalizedKey] = String(value);
-    } else {
-      console.warn(`⚠️ Clave desconocida ignorada: ${key}`);
+      let val = parseFloat(value);
+      // 🔹 Normalizar Offset y amplitud a 0-1 si son mayores a 1
+      if (["Offset", "amplitud"].includes(mapped) && val > 1) {
+        val = val / 100;
+      }
+      normalized[mapped] = val.toFixed(3);
     }
   }
-
   return normalized;
 }
 
-// 🔧 Función para asegurar que todas las claves estén presentes
+// 🔧 Asegura claves por defecto
 function ensureDefaults(obj) {
   const defaults = {
     N: "1000",
@@ -150,11 +156,8 @@ function ensureDefaults(obj) {
     Offset: "0.5",
     amplitud: "0.1",
   };
-
   for (const key in defaults) {
-    if (!(key in obj)) {
-      obj[key] = defaults[key];
-    }
+    if (!(key in obj)) obj[key] = defaults[key];
   }
   return obj;
 }

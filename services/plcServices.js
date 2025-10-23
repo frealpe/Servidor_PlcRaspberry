@@ -213,7 +213,74 @@ const ejecutarCaracterizacion = async ({
     resultados,
   };
 };
+//
+const ejecutarComparacion = async ({
+  accion="comparacion",
+  canalAdc = 0,
+  canalPwm = 0,
+  tiempo_muestreo_ms = 100,
+  secuencia = [
+    { porcentaje: 30, duracion_s: 20 },
+    { porcentaje: 10, duracion_s: 30 },
+  ],
+}) => {
+  const resultados = [];
+  const Ts = tiempo_muestreo_ms / 1000; // segundos
+  let tiempoTranscurrido = 0;
+  console.log(`⚙️ Iniciando comparación secuencial PWM-Modelo...`,secuencia);
+  for (const paso of secuencia) {
+    const pwmObjetivo = Math.round((paso.porcentaje / 100) * 4095);
+    const duracionPasoMs = paso.duracion_s * 1000;
+    const inicioPaso = Date.now();
+    const finPaso = inicioPaso + duracionPasoMs;
 
+    while (Date.now() < finPaso) {
+      // 1️⃣ Escribir PWM
+      rpiplc.writePWM(canalPwm, pwmObjetivo);
+
+      // 2️⃣ Leer ADC real
+      const conversion = await leerADC({
+        canal: canalAdc,
+        tiempo: parseFloat(tiempoTranscurrido.toFixed(3)),
+      });
+      console.log("PWM objetivo:", pwmObjetivo);
+      console.log("Valor ADC real:", conversion);
+      // 3️⃣ Salida del modelo (simulada)
+      const u = pwmObjetivo / 4095.0; // normalizar a [0,1]
+      console.log("PWM normalizado:", u);
+      const y = modeloPlanta(u);
+      console.log("Valor modelo simulado:", Math.round(y * 4095));
+      // 4️⃣ Enviar salida simulada por socket
+      Sockets.enviarMensaje("adcPlc", {
+        canal: 1,
+        conversion: Math.round(y * 4095),
+        tiempo: parseFloat(tiempoTranscurrido.toFixed(3)),
+      });
+
+      // 5️⃣ Escalar ambos a voltaje (0–10 V)
+      const voltaje0 = (10.0 * conversion) / 4095.0; // medición real
+      const voltaje1 = (10.0 * y) / 4095.0; // modelo simulado
+
+      // 6️⃣ Guardar registro completo
+      resultados.push({
+        tiempo: parseFloat(tiempoTranscurrido.toFixed(3)),
+        pwm: pwmObjetivo,
+        voltaje0: parseFloat(voltaje0.toFixed(3)), // real
+        voltaje1: parseFloat(voltaje1.toFixed(3)), // modelo
+      });
+
+      // 7️⃣ Esperar siguiente muestreo
+      tiempoTranscurrido += Ts;
+      await new Promise((r) => setTimeout(r, tiempo_muestreo_ms));
+    }
+  }
+
+  // 🧾 Resultado final
+  return {
+    Prueba: new Date().toISOString(),
+    resultados,
+  };
+};
 // =============================
 // FUNCIÓN PRINCIPAL: CARACTERIZACIÓN
 // =============================
@@ -359,5 +426,6 @@ module.exports = {
   ejecutarControlPI,
   ejecutarCaracterizacion,
   Caracterizacion,
-  Identificacion
+  Identificacion,
+  ejecutarComparacion
 };

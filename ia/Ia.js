@@ -4,7 +4,10 @@ const { procesarPromptIAdc,
         procesarPromptControl, 
         procesarPromptSupervisor, 
         procesarPromptCaracterizacion, 
-        procesarPromptIdentificacion
+        procesarPromptIdentificacion,
+        procesarPromptPetri,
+        procesarPrompComparacion,
+        procesarPromptControlIA
       } = require("../controllers/plcControllerAi");
 const { publicarMQTT, suscribirTopics } = require("../mqtt/conectMqtt");
 
@@ -15,7 +18,10 @@ function IA() {
           "Plc/Control",
           "Plc/Supervisor",
           "Plc/Caracterizacion",
-          "Plc/Identificacion"
+          "Plc/Identificacion",
+          "Plc/Petri",
+          "Plc/Comparacion",
+          "Plc/ControlIA"
         ], async (topic, msg) => {
     
     console.log(`Mensaje recibido en ${topic}:`, msg);  
@@ -35,7 +41,12 @@ function IA() {
           resultado = await procesarPromptCaracterizacion(msg); break;          
         case "Plc/Identificacion":
           resultado = await procesarPromptIdentificacion(msg); break;          
-
+        case "Plc/Petri":
+          resultado = await procesarPromptPetri(msg); break;    
+        case "Plc/Comparacion":
+          resultado = await procesarPrompComparacion(msg); break;    
+        case "Plc/ControlIA":
+          resultado = await procesarPromptControlIA(msg); break;    
 
         }
       if (resultado) {

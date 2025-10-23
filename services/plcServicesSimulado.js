@@ -2,11 +2,11 @@
 // Escritura digital
 
 const Sockets = require("../lib/socket");
+//{modeloPlanta} = require("../services/modelo");
 const { modeloPlanta } = require("../services/modelo");
 
-
 // =======================
-const escribirSalida = ({pin, valor}) => {
+const escribirSalida = ({ pin, valor }) => {
   if (pin !== undefined && (valor === 0 || valor === 1)) {
     // Simulación: randomiza si la escritura fue "exitosa" o no
     const simulated = Math.random() > 0.1; // 90% éxito, 10% fallo
@@ -22,7 +22,7 @@ const escribirSalida = ({pin, valor}) => {
 };
 // =======================
 // Lectura digital
-// ======================= 
+// =======================
 const leerEntrada = (pin) => {
   if (pin !== undefined) {
     // Simulación: genera 0 o 1 de forma aleatoria
@@ -32,7 +32,6 @@ const leerEntrada = (pin) => {
   }
   return `⚠️ Pin ${pin} no definido en la tabla`;
 };
-
 
 // =======================
 // Lectura de ADC
@@ -45,7 +44,7 @@ const leerADC = async ({ canal, tiempo }) => {
     const conversion = Math.floor(Math.random() * 4096);
     // console.log("Conversion",conversion);
     // Emitir al cliente WebSocket
-    Sockets.enviarMensaje('adcPlc',{ canal, conversion, tiempo });
+    Sockets.enviarMensaje("adcPlc", { canal, conversion, tiempo });
 
     return conversion;
   }
@@ -65,14 +64,13 @@ const ejecutarADC = async ({ canal, muestreo, duracion }) => {
   const Ts = muestreo / 1000; // segundos
   let tiempoTranscurrido = 0;
 
-
   while (Date.now() < fin) {
     // Calcular tiempo actual
     const tiempoActual = parseFloat(tiempoTranscurrido.toFixed(2));
     //console.log("⏲️ Tiempo actual:", tiempoActual);
 
     // Llamar al ADC
-    const conversion = await leerADC({canal, tiempo: tiempoActual });
+    const conversion = await leerADC({ canal, tiempo: tiempoActual });
     //console.log("🔹 Valor ADC:", valor);
 
     resultados.push({
@@ -91,8 +89,6 @@ const ejecutarADC = async ({ canal, muestreo, duracion }) => {
   return resultados;
 };
 
-
-
 // =======================
 // Escritura de PWM
 // =======================
@@ -107,8 +103,16 @@ const escribirPWM = (canal, duty) => {
 // =======================
 // Control PI discreto (simulación real 12-bit PWM)
 // =======================
-const ejecutarControlPI = async ({ canalAdc, canalPwm, setpoint_volt, tiempo_muestreo_ms, tiempo_simulacion_ms }) => {
-  console.log(`📡 Iniciando Control PI: ADC${canalAdc} → PWM${canalPwm}, SetPoint=${setpoint_volt}V, Ts=${tiempo_muestreo_ms}ms, Duración=${tiempo_simulacion_ms}ms`);
+const ejecutarControlPI = async ({
+  canalAdc,
+  canalPwm,
+  setpoint_volt,
+  tiempo_muestreo_ms,
+  tiempo_simulacion_ms,
+}) => {
+  console.log(
+    `📡 Iniciando Control PI: ADC${canalAdc} → PWM${canalPwm}, SetPoint=${setpoint_volt}V, Ts=${tiempo_muestreo_ms}ms, Duración=${tiempo_simulacion_ms}ms`
+  );
 
   let integralError = 0.0;
   const kp = 1.2;
@@ -121,15 +125,18 @@ const ejecutarControlPI = async ({ canalAdc, canalPwm, setpoint_volt, tiempo_mue
 
   while (Date.now() < fin) {
     // 1️⃣ Leer ADC
-    const conversion = await leerADC({canal:canalAdc,tiempo: tiempoTranscurrido});
-    
+    const conversion = await leerADC({
+      canal: canalAdc,
+      tiempo: tiempoTranscurrido,
+    });
+
     if (conversion < 0) conversion = 0;
 
     // 2️⃣ Convertir a voltaje 0–10V
     const voltaje = (10.0 * conversion) / 4095;
 
     // 3️⃣ Calcular error PI
-    const error = (setpoint_volt - voltaje);
+    const error = setpoint_volt - voltaje;
     integralError += Ts * error;
     let controlVoltage = kp * (error + (1.0 / Ti) * integralError);
 
@@ -138,7 +145,7 @@ const ejecutarControlPI = async ({ canalAdc, canalPwm, setpoint_volt, tiempo_mue
 
     // 5️⃣ Escalar control a PWM 12-bit
     const valorPWM = Math.round((controlVoltage / 10) * 4095);
-    escribirPWM({canalPwm, valorPWM});
+    escribirPWM({ canalPwm, valorPWM });
 
     // Crear JSON con la info
     const dato = {
@@ -156,7 +163,7 @@ const ejecutarControlPI = async ({ canalAdc, canalPwm, setpoint_volt, tiempo_mue
   // 👇 Estructura final
   return {
     Prueba: new Date().toISOString(),
-    resultados
+    resultados,
   };
 };
 
@@ -184,7 +191,9 @@ const ejecutarCaracterizacion = async ({
     const inicioPaso = Date.now();
     const finPaso = inicioPaso + duracionPasoMs;
 
-    console.log(`➡️ Nivel ${paso.porcentaje}% (${pwmObjetivo}) durante ${paso.duracion_s}s`);
+    console.log(
+      `➡️ Nivel ${paso.porcentaje}% (${pwmObjetivo}) durante ${paso.duracion_s}s`
+    );
 
     // Mantiene el PWM constante en este nivel durante la duración especificada
     while (Date.now() < finPaso) {
@@ -220,9 +229,75 @@ const ejecutarCaracterizacion = async ({
     resultados,
   };
 };
+//
+const ejecutarComparacion = async ({
+  accion="comparacion",
+  canalAdc = 0,
+  canalPwm = 0,
+  tiempo_muestreo_ms = 100,
+  secuencia = [
+    { porcentaje: 30, duracion_s: 20 },
+    { porcentaje: 10, duracion_s: 30 },
+  ],
+}) => {
+  const resultados = [];
+  const Ts = tiempo_muestreo_ms / 1000; // segundos
+  let tiempoTranscurrido = 0;
+  console.log(`⚙️ Iniciando comparación secuencial PWM-Modelo...`,secuencia);
+  for (const paso of secuencia) {
+    const pwmObjetivo = Math.round((paso.porcentaje / 100) * 4095);
+    const duracionPasoMs = paso.duracion_s * 1000;
+    const inicioPaso = Date.now();
+    const finPaso = inicioPaso + duracionPasoMs;
+
+    while (Date.now() < finPaso) {
+      // 1️⃣ Escribir PWM
+      //rpiplc.writePWM(canalPwm, pwmObjetivo);
+
+      // 2️⃣ Leer ADC real
+      const conversion = await leerADC({
+        canal: canalAdc,
+        tiempo: parseFloat(tiempoTranscurrido.toFixed(3)),
+      });
+      console.log("PWM objetivo:", pwmObjetivo);
+      console.log("Valor ADC real:", conversion);
+      // 3️⃣ Salida del modelo (simulada)
+      const y = Math.round(modeloPlanta(pwmObjetivo));
+      console.log("Valor modelo simulado:", y);
+      // 4️⃣ Enviar salida simulada por socket
+      Sockets.enviarMensaje("adcPlc", {
+        canal: 1,
+        conversion: y,
+        tiempo: parseFloat(tiempoTranscurrido.toFixed(3)),
+      });
+
+      // 5️⃣ Escalar ambos a voltaje (0–10 V)
+      const voltaje0 = (10.0 * conversion) / 4095.0; // medición real
+      const voltaje1 = (10.0 * y) / 4095.0; // modelo simulado
+
+      // 6️⃣ Guardar registro completo
+      resultados.push({
+        tiempo: parseFloat(tiempoTranscurrido.toFixed(3)),
+        pwm: pwmObjetivo,
+        voltaje0: parseFloat(voltaje0.toFixed(3)), // real
+        voltaje1: parseFloat(voltaje1.toFixed(3)), // modelo
+      });
+
+      // 7️⃣ Esperar siguiente muestreo
+      tiempoTranscurrido += Ts;
+      await new Promise((r) => setTimeout(r, tiempo_muestreo_ms));
+    }
+  }
+
+  // 🧾 Resultado final
+  return {
+    Prueba: new Date().toISOString(),
+    resultados,
+  };
+};
 
 // =======================
-const Caracterizacion = async ({params}) => {
+const Caracterizacion = async ({ params }) => {
   try {
     // --- Validación y conversión ---
     const N = parseInt(params.N || 1000);
@@ -289,10 +364,10 @@ const Caracterizacion = async ({params}) => {
     }
 
     console.log("✅ Caracterización completada. Muestras:", resultado.length);
-      return {
-        Prueba: new Date().toISOString(),
-        resultado,
-      };
+    return {
+      Prueba: new Date().toISOString(),
+      resultado,
+    };
   } catch (error) {
     console.error("❌ Error en caracterización:", error);
     throw error;
@@ -305,10 +380,15 @@ const Identificacion = async ({ Ts, data }) => {
   try {
     const N = data.length;
     const muestreoMs = Ts * 1000; // en milisegundos
-    console.log("⚙️ Iniciando identificación de planta en tiempo real:", { N, Ts, muestreoMs });
+    console.log("⚙️ Iniciando identificación de planta en tiempo real:", {
+      N,
+      Ts,
+      muestreoMs,
+    });
 
     const resultado = [];
     let tiempo = 0;
+    console.log("DEBUG modelo:", modeloPlanta);
 
     // 🔁 Bucle en tiempo real: una muestra por iteración, con espera
     for (let i = 0; i < N; i++) {
@@ -339,7 +419,10 @@ const Identificacion = async ({ Ts, data }) => {
       }
     }
 
-    console.log("✅ Identificación completada. Total muestras:", resultado.length);
+    console.log(
+      "✅ Identificación completada. Total muestras:",
+      resultado.length
+    );
 
     return {
       Fecha: new Date().toISOString(),
@@ -363,5 +446,6 @@ module.exports = {
   ejecutarControlPI,
   ejecutarCaracterizacion,
   Caracterizacion,
-  Identificacion
+  Identificacion,
+  ejecutarComparacion,
 };
